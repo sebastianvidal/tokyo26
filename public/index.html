@@ -1240,6 +1240,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadChecklist();
             loadItinerary();
+            loadTripInfo();
             updatePendingBadge();
         });
 
@@ -1453,6 +1454,65 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        // === Trip Info Functions ===
+        async function loadTripInfo() {
+            try {
+                const res = await fetch('/api/trip');
+                if (!res.ok) return; // Trip not found, keep hardcoded defaults
+                const trip = await res.json();
+
+                // Update header
+                const headerTitle = document.querySelector('.header h1');
+                const headerDates = document.querySelector('.header-dates');
+                const headerTags = document.querySelector('.header-tags');
+
+                if (headerTitle) headerTitle.textContent = trip.title;
+                if (headerDates) headerDates.textContent = trip.subtitle;
+                if (headerTags && trip.tags) {
+                    headerTags.innerHTML = trip.tags.map((tag, i) =>
+                        `<span class="header-tag ${i === 0 ? 'tokyo' : 'niseko'}">${tag}</span>`
+                    ).join('');
+                }
+
+                // Update flights card and highlights card
+                const overviewCards = document.querySelectorAll('.overview-card');
+                let flightsCardEl = null;
+                let highlightsCardEl = null;
+                overviewCards.forEach(card => {
+                    const h3 = card.querySelector('h3');
+                    if (h3 && h3.textContent === 'Flights') flightsCardEl = card;
+                    if (h3 && h3.textContent === 'Highlights') highlightsCardEl = card;
+                });
+
+                if (flightsCardEl && trip.flights) {
+                    const h3 = flightsCardEl.querySelector('h3');
+                    flightsCardEl.innerHTML = '';
+                    flightsCardEl.appendChild(h3);
+                    trip.flights.forEach(flight => {
+                        const item = document.createElement('div');
+                        item.className = 'overview-item';
+                        item.innerHTML = `<span>${flight.label}</span><span>${flight.route} ${flight.date}</span>`;
+                        flightsCardEl.appendChild(item);
+                    });
+                }
+
+                // Update highlights card
+                if (highlightsCardEl && trip.highlights) {
+                    const h3 = highlightsCardEl.querySelector('h3');
+                    highlightsCardEl.innerHTML = '';
+                    highlightsCardEl.appendChild(h3);
+                    trip.highlights.forEach(hl => {
+                        const item = document.createElement('div');
+                        item.className = 'overview-item';
+                        item.innerHTML = `<span>${hl.label}</span><span>${hl.value}</span>`;
+                        highlightsCardEl.appendChild(item);
+                    });
+                }
+            } catch (err) {
+                console.error('Failed to load trip info:', err);
+            }
         }
 
         // === Itinerary Functions ===
@@ -1917,14 +1977,21 @@
 
                 case 'done':
                     // Update conversation history from server
-                    chatHistory = data.conversationHistory.map(msg => {
+                    chatHistory = data.conversationHistory.map((msg, index, arr) => {
                         if (msg.role === 'assistant') {
                             // Extract text content from assistant messages
+                            let result;
                             if (Array.isArray(msg.content)) {
                                 const textBlock = msg.content.find(b => b.type === 'text');
-                                return { role: 'assistant', content: textBlock ? textBlock.text : '' };
+                                result = { role: 'assistant', content: textBlock ? textBlock.text : '' };
+                            } else {
+                                result = { ...msg };
                             }
-                            return msg;
+                            // Attach toolsUsed to the last assistant message
+                            if (index === arr.length - 1 && data.toolsUsed && data.toolsUsed.length > 0) {
+                                result.toolsUsed = data.toolsUsed;
+                            }
+                            return result;
                         } else if (msg.role === 'user') {
                             // Extract user message text
                             if (Array.isArray(msg.content)) {
@@ -1969,21 +2036,99 @@
                 return;
             }
 
-            container.innerHTML = chatHistory.map(msg => `
-                <div class="chat-message ${msg.role}">
-                    ${formatChatMessage(msg.content)}
-                </div>
-            `).join('');
+            container.innerHTML = chatHistory.map(msg => {
+                if (msg.role === 'assistant') {
+                    // Render tool steps before content for assistant messages
+                    let toolStepsHtml = '';
+                    if (msg.toolsUsed && msg.toolsUsed.length > 0) {
+                        toolStepsHtml = `<div class="chat-thinking-steps">${
+                            msg.toolsUsed.map(step => `
+                                <div class="chat-thinking-step done">
+                                    <span class="icon">&#10003;</span>
+                                    <span>${escapeHtml(step.displayName)}</span>
+                                </div>
+                            `).join('')
+                        }</div>`;
+                    }
+                    return `
+                        <div class="chat-message ${msg.role}">
+                            ${toolStepsHtml}
+                            ${formatChatMessage(msg.content)}
+                        </div>
+                    `;
+                }
+                return `
+                    <div class="chat-message ${msg.role}">
+                        ${formatChatMessage(msg.content)}
+                    </div>
+                `;
+            }).join('');
 
             // Scroll to bottom
             container.scrollTop = container.scrollHeight;
         }
 
         function formatChatMessage(content) {
-            // Basic formatting: escape HTML but preserve newlines
-            let formatted = escapeHtml(content);
-            // Convert newlines to <br>
+            return formatMarkdown(content);
+        }
+
+        function formatMarkdown(text) {
+            // Escape HTML first to prevent XSS
+            let formatted = escapeHtml(text);
+
+            // Process markdown syntax
+
+            // Bold: **text** -> <strong>text</strong>
+            formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+            // Italic: *text* -> <em>text</em> (but not inside bold)
+            formatted = formatted.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
+
+            // Inline code: `code` -> <code>code</code>
+            formatted = formatted.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+            // Links: [text](url) -> <a href="url" target="_blank">text</a>
+            formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+
+            // Process list items line by line
+            const lines = formatted.split('\n');
+            let inList = false;
+            const processedLines = [];
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const listMatch = line.match(/^(\s*)- (.+)$/);
+
+                if (listMatch) {
+                    if (!inList) {
+                        processedLines.push('<ul>');
+                        inList = true;
+                    }
+                    processedLines.push(`<li>${listMatch[2]}</li>`);
+                } else {
+                    if (inList) {
+                        processedLines.push('</ul>');
+                        inList = false;
+                    }
+                    processedLines.push(line);
+                }
+            }
+
+            if (inList) {
+                processedLines.push('</ul>');
+            }
+
+            formatted = processedLines.join('\n');
+
+            // Convert remaining newlines to <br>
             formatted = formatted.replace(/\n/g, '<br>');
+
+            // Clean up <br> around list elements
+            formatted = formatted.replace(/<br><ul>/g, '<ul>');
+            formatted = formatted.replace(/<\/ul><br>/g, '</ul>');
+            formatted = formatted.replace(/<br><li>/g, '<li>');
+            formatted = formatted.replace(/<\/li><br>/g, '</li>');
+
             return formatted;
         }
 

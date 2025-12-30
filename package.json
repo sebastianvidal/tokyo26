@@ -10,6 +10,9 @@
     "db:push": "npx prisma db push",
     "db:studio": "npx prisma studio"
   },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",
     "@prisma/client": "^5.22.0",

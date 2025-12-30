@@ -11,6 +11,19 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static('public'));
 
+// Helper: Convert time string to minutes for sorting
+function timeToMinutes(timeStr) {
+  if (!timeStr || timeStr === 'all-day') return -1; // All-day items go first
+  const match = timeStr.match(/(\d+):?(\d*)\s*(am|pm)?/i);
+  if (!match) return 9999; // Unknown times go to end
+  let hours = parseInt(match[1]);
+  const mins = parseInt(match[2] || '0');
+  const period = (match[3] || '').toLowerCase();
+  if (period === 'pm' && hours !== 12) hours += 12;
+  if (period === 'am' && hours === 12) hours = 0;
+  return hours * 60 + mins;
+}
+
 // === COMMENTS ===
 
 // Get all comments (optionally filter by day)
@@ -105,6 +118,25 @@ app.delete('/api/requests/:id', async (req, res) => {
   }
 });
 
+// === TRIP INFO ===
+
+// Get trip info (header, flights, highlights)
+app.get('/api/trip', async (req, res) => {
+  try {
+    const trip = await prisma.trip.findFirst({
+      include: {
+        flights: { orderBy: { sortOrder: 'asc' } }
+      }
+    });
+    if (!trip) {
+      return res.status(404).json({ error: 'No trip found' });
+    }
+    res.json(trip);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // === ITINERARY - DAYS ===
 
 // Get all days with nested items
@@ -167,12 +199,25 @@ app.post('/api/days/:dayNumber/schedule', async (req, res) => {
     });
     if (!day) return res.status(404).json({ error: 'Day not found' });
 
-    // Get max sortOrder for this day
-    const maxItem = await prisma.scheduleItem.findFirst({
+    // Get all existing items for this day
+    const existingItems = await prisma.scheduleItem.findMany({
       where: { dayId: day.id },
-      orderBy: { sortOrder: 'desc' }
+      orderBy: { sortOrder: 'asc' }
     });
-    const sortOrder = (maxItem?.sortOrder ?? -1) + 1;
+
+    // Find correct position based on time
+    const newTimeMinutes = timeToMinutes(time);
+    let sortOrder = 0;
+    for (const item of existingItems) {
+      if (timeToMinutes(item.time) > newTimeMinutes) break;
+      sortOrder = item.sortOrder + 1;
+    }
+
+    // Shift existing items to make room
+    await prisma.scheduleItem.updateMany({
+      where: { dayId: day.id, sortOrder: { gte: sortOrder } },
+      data: { sortOrder: { increment: 1 } }
+    });
 
     const item = await prisma.scheduleItem.create({
       data: { dayId: day.id, time, description, category, sortOrder }
@@ -575,16 +620,30 @@ async function executeToolCall(toolName, toolInput) {
       });
       if (!day) return { error: 'Day not found' };
 
-      const maxItem = await prisma.scheduleItem.findFirst({
+      // Get all existing items for this day
+      const existingItems = await prisma.scheduleItem.findMany({
         where: { dayId: day.id },
-        orderBy: { sortOrder: 'desc' }
+        orderBy: { sortOrder: 'asc' }
       });
-      const sortOrder = (maxItem?.sortOrder ?? -1) + 1;
 
-      const item = await prisma.scheduleItem.create({
+      // Find correct position based on time
+      const newTimeMinutes = timeToMinutes(time);
+      let sortOrder = 0;
+      for (const existingItem of existingItems) {
+        if (timeToMinutes(existingItem.time) > newTimeMinutes) break;
+        sortOrder = existingItem.sortOrder + 1;
+      }
+
+      // Shift existing items to make room
+      await prisma.scheduleItem.updateMany({
+        where: { dayId: day.id, sortOrder: { gte: sortOrder } },
+        data: { sortOrder: { increment: 1 } }
+      });
+
+      const newItem = await prisma.scheduleItem.create({
         data: { dayId: day.id, time, description, category, sortOrder }
       });
-      return item;
+      return newItem;
     }
 
     case 'update_schedule_item': {
@@ -708,6 +767,7 @@ app.post('/api/chat', async (req, res) => {
     let modified = false;
     let fullResponse = '';
     let continueLoop = true;
+    const toolsUsed = [];
 
     while (continueLoop) {
       // Use streaming API
@@ -759,6 +819,12 @@ app.post('/api/chat', async (req, res) => {
             modified = true;
           }
 
+          // Track tool usage
+          toolsUsed.push({
+            tool: toolUse.name,
+            displayName: TOOL_DISPLAY_NAMES[toolUse.name] || toolUse.name
+          });
+
           // Send tool completion event
           sendSSE(res, 'tool_done', {
             tool: toolUse.name,
@@ -808,7 +874,8 @@ app.post('/api/chat', async (req, res) => {
     // Send completion event
     sendSSE(res, 'done', {
       modified,
-      conversationHistory: cleanHistory
+      conversationHistory: cleanHistory,
+      toolsUsed
     });
 
     res.end();
