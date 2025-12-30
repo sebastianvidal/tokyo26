@@ -797,10 +797,32 @@ app.post('/api/chat', async (req, res) => {
       }
     }
 
+    // Clean conversation history for client - only keep user text and assistant text
+    // Remove tool_use/tool_result pairs to avoid API errors on next call
+    const cleanHistory = [];
+    for (const msg of messages) {
+      if (msg.role === 'user') {
+        // Only keep string content (skip tool_result arrays)
+        if (typeof msg.content === 'string') {
+          cleanHistory.push(msg);
+        }
+      } else if (msg.role === 'assistant') {
+        // Extract text from assistant messages
+        if (Array.isArray(msg.content)) {
+          const textBlock = msg.content.find(b => b.type === 'text');
+          if (textBlock && textBlock.text) {
+            cleanHistory.push({ role: 'assistant', content: textBlock.text });
+          }
+        } else if (typeof msg.content === 'string') {
+          cleanHistory.push(msg);
+        }
+      }
+    }
+
     // Send completion event
     sendSSE(res, 'done', {
       modified,
-      conversationHistory: messages
+      conversationHistory: cleanHistory
     });
 
     res.end();
