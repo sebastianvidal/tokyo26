@@ -1882,7 +1882,8 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         message,
-                        conversationHistory: chatHistory.slice(0, -1)
+                        // Strip toolsUsed from messages - Claude API only accepts role/content
+                        conversationHistory: chatHistory.slice(0, -1).map(({ toolsUsed, ...msg }) => msg)
                     })
                 });
 
