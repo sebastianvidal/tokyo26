@@ -26,3 +26,64 @@ model Request {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// Itinerary Models
+
+model Day {
+  id        String   @id @default(cuid())
+  dayNumber Int      @unique // 0-13
+  date      DateTime
+  title     String   // "Shimokitazawa Vintage Day"
+  dayType   String   // "tokyo" | "niseko" | "travel"
+
+  scheduleItems ScheduleItem[]
+  spots         Spot[]
+  links         DayLink[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([dayNumber])
+}
+
+model ScheduleItem {
+  id          String  @id @default(cuid())
+  dayId       String
+  day         Day     @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  sortOrder   Int
+  time        String  // "9:30am"
+  description String  // Can contain HTML links
+  category    String? // "cultural" | "shopping" | "food"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([dayId, sortOrder])
+}
+
+model Spot {
+  id          String @id @default(cuid())
+  dayId       String
+  day         Day    @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  name        String
+  description String
+  category    String // "cultural" | "shopping" | "food" | "chill" | "party"
+  mapUrl      String
+  sortOrder   Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([dayId, sortOrder])
+}
+
+model DayLink {
+  id        String @id @default(cuid())
+  dayId     String
+  day       Day    @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  label     String // "Day Route", "TeamLab Tickets"
+  url       String
+  sortOrder Int
+
+  @@index([dayId, sortOrder])
+}
