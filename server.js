@@ -682,9 +682,26 @@ app.post('/api/chat', async (req, res) => {
       return;
     }
 
+    // Clean incoming conversation history - ensure no tool_use/tool_result blocks
+    const cleanedIncoming = [];
+    for (const msg of conversationHistory) {
+      if (msg.role === 'user' && typeof msg.content === 'string') {
+        cleanedIncoming.push(msg);
+      } else if (msg.role === 'assistant') {
+        if (typeof msg.content === 'string') {
+          cleanedIncoming.push(msg);
+        } else if (Array.isArray(msg.content)) {
+          const textBlock = msg.content.find(b => b.type === 'text');
+          if (textBlock && textBlock.text) {
+            cleanedIncoming.push({ role: 'assistant', content: textBlock.text });
+          }
+        }
+      }
+    }
+
     // Build messages array
     const messages = [
-      ...conversationHistory,
+      ...cleanedIncoming,
       { role: 'user', content: message }
     ];
 
