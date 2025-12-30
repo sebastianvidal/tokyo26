@@ -24,6 +24,13 @@
             --tokyo: #ec4899;
             --niseko: #06b6d4;
             --travel: #a855f7;
+            /* Category colors */
+            --cultural: #a855f7;
+            --cultural-soft: rgba(168, 85, 247, 0.15);
+            --shopping: #eab308;
+            --shopping-soft: rgba(234, 179, 8, 0.15);
+            --food: #22c55e;
+            --food-soft: rgba(34, 197, 94, 0.15);
         }
 
         body {
@@ -233,6 +240,41 @@
         .schedule-time { color: var(--text-muted); font-weight: 500; width: 4rem; flex-shrink: 0; }
         .schedule-desc { flex: 1; }
         .highlight { color: var(--accent); font-weight: 500; }
+
+        /* Category-highlighted schedule items */
+        .schedule-item.cultural {
+            background: var(--cultural-soft);
+            border-left: 3px solid var(--cultural);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin: 0.375rem 0;
+            border-bottom: none;
+        }
+        .schedule-item.cultural .schedule-desc { color: var(--text); }
+        .schedule-item.cultural .highlight { color: var(--cultural); }
+
+        .schedule-item.shopping {
+            background: var(--shopping-soft);
+            border-left: 3px solid var(--shopping);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin: 0.375rem 0;
+            border-bottom: none;
+        }
+        .schedule-item.shopping .schedule-desc { color: var(--text); }
+        .schedule-item.shopping .highlight,
+        .schedule-item.shopping a { color: var(--shopping); }
+
+        .schedule-item.food {
+            background: var(--food-soft);
+            border-left: 3px solid var(--food);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin: 0.375rem 0;
+            border-bottom: none;
+        }
+        .schedule-item.food .schedule-desc { color: var(--text); }
+        .schedule-item.food .highlight { color: var(--food); }
 
         /* Links */
         a { color: var(--accent); text-decoration: none; }
@@ -504,11 +546,6 @@
             align-items: center;
             margin-bottom: 0.5rem;
         }
-        .item-author {
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: var(--accent);
-        }
         .item-day {
             font-size: 0.7rem;
             color: var(--text-muted);
@@ -519,7 +556,7 @@
         .item-title {
             font-weight: 600;
             font-size: 0.9rem;
-            margin-bottom: 0.25rem;
+            color: var(--accent);
         }
         .item-content {
             font-size: 0.8rem;
@@ -716,26 +753,24 @@
                 </div>
                 <div class="day-content">
                     <div class="day-inner">
-                        <p class="section-title">Cultural</p>
-                        <div class="schedule-item">
-                            <div class="schedule-time">10:00am</div>
-                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/Gotokuji+Temple/" target="_blank" class="highlight">Gotoku-ji Temple</a> — Lucky cat temple, hundreds of maneki-neko</div>
-                        </div>
-
                         <p class="section-title">Schedule</p>
                         <div class="schedule-item">
                             <div class="schedule-time">9:30am</div>
                             <div class="schedule-desc">Leave hotel</div>
                         </div>
+                        <div class="schedule-item cultural">
+                            <div class="schedule-time">10:00am</div>
+                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/Gotokuji+Temple/" target="_blank" class="highlight">Gotoku-ji Temple</a> — Lucky cat temple, hundreds of maneki-neko</div>
+                        </div>
                         <div class="schedule-item">
                             <div class="schedule-time">11:00am</div>
                             <div class="schedule-desc">Walk to <a href="https://www.google.com/maps/place/Shimokitazawa/" target="_blank">Shimokitazawa</a></div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item shopping">
                             <div class="schedule-time">11:30am</div>
                             <div class="schedule-desc"><span class="highlight">Vintage:</span> <a href="https://www.google.com/maps/search/Flamingo+Shimokitazawa/" target="_blank">Flamingo</a>, <a href="https://www.google.com/maps/search/New+York+Joe+Exchange+Shimokitazawa/" target="_blank">New York Joe Exchange</a>, <a href="https://www.google.com/maps/search/Haight+Ashbury+Shimokitazawa/" target="_blank">Haight & Ashbury</a></div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item food">
                             <div class="schedule-time">1:00pm</div>
                             <div class="schedule-desc"><span class="highlight">Lunch:</span> Casual Shimokita spot (curry, ramen, kissaten)</div>
                         </div>
@@ -743,11 +778,11 @@
                             <div class="schedule-time">4:30pm</div>
                             <div class="schedule-desc">Head back, rest up</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item food">
                             <div class="schedule-time">7:00pm</div>
                             <div class="schedule-desc"><span class="highlight">Dinner:</span> Mid-range Japanese</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item food">
                             <div class="schedule-time">9:30pm</div>
                             <div class="schedule-desc"><span class="highlight">Drinks:</span> <a href="https://www.google.com/maps/search/Bar+Piano+Shimokitazawa/" target="_blank">Bar Piano</a> (jazz) or <a href="https://www.google.com/maps/place/The+SG+Club/" target="_blank">SG Club</a> (Shibuya)</div>
                         </div>
@@ -771,30 +806,24 @@
                 </div>
                 <div class="day-content">
                     <div class="day-inner">
-                        <p class="section-title">Cultural</p>
-                        <div class="schedule-item">
-                            <div class="schedule-time">10:30am</div>
-                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/teamLab+Planets+TOKYO/" target="_blank" class="highlight">TeamLab Planets</a> — Immersive digital art, book ahead!</div>
-                        </div>
-
                         <p class="section-title">Schedule</p>
                         <div class="schedule-item">
                             <div class="schedule-time">10:00am</div>
                             <div class="schedule-desc">Leave hotel</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item cultural">
                             <div class="schedule-time">10:30am</div>
-                            <div class="schedule-desc">TeamLab Planets (~2 hours)</div>
+                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/teamLab+Planets+TOKYO/" target="_blank" class="highlight">TeamLab Planets</a> — Immersive digital art (~2 hours)</div>
                         </div>
                         <div class="schedule-item">
                             <div class="schedule-time">1:00pm</div>
                             <div class="schedule-desc">Train to <a href="https://www.google.com/maps/place/Ginza/" target="_blank">Ginza</a></div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item food">
                             <div class="schedule-time">1:30pm</div>
                             <div class="schedule-desc"><span class="highlight">Lunch:</span> Department store food hall or tonkatsu</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item shopping">
                             <div class="schedule-time">2:30pm</div>
                             <div class="schedule-desc"><span class="highlight">Shopping:</span> <a href="https://www.google.com/maps/place/Dover+Street+Market+Ginza/" target="_blank">Dover Street Market</a>, <a href="https://www.google.com/maps/place/UNIQLO+TOKYO/" target="_blank">Uniqlo flagship</a>, <a href="https://www.google.com/maps/place/Itoya/" target="_blank">Itoya</a></div>
                         </div>
@@ -802,13 +831,13 @@
                             <div class="schedule-time">6:00pm</div>
                             <div class="schedule-desc">Back to hotel, change for dinner</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item food">
                             <div class="schedule-time">7:30pm</div>
                             <div class="schedule-desc"><span class="highlight">Michelin:</span> <a href="https://www.google.com/maps/place/Sushi+Kanesaka/" target="_blank">Sushi Kanesaka</a> or <a href="https://www.google.com/maps/place/Tempura+Kondo/" target="_blank">Tempura Kondo</a></div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item food">
                             <div class="schedule-time">10:00pm</div>
-                            <div class="schedule-desc">Nightcap — <a href="https://www.google.com/maps/place/Star+Bar+Ginza/" target="_blank">Star Bar Ginza</a> or hotel</div>
+                            <div class="schedule-desc"><span class="highlight">Nightcap:</span> <a href="https://www.google.com/maps/place/Star+Bar+Ginza/" target="_blank">Star Bar Ginza</a> or hotel</div>
                         </div>
 
                         <a href="https://www.teamlab.art/e/planets/" target="_blank" class="link-btn">TeamLab Tickets</a>
@@ -831,42 +860,36 @@
                 </div>
                 <div class="day-content">
                     <div class="day-inner">
-                        <p class="section-title">Cultural</p>
-                        <div class="schedule-item">
-                            <div class="schedule-time">10:00am</div>
-                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/Meiji+Jingu/" target="_blank" class="highlight">Meiji Jingu Shrine</a> — Peaceful forest walk, iconic</div>
-                        </div>
-
                         <p class="section-title">Schedule</p>
                         <div class="schedule-item">
                             <div class="schedule-time">9:30am</div>
                             <div class="schedule-desc">Leave hotel</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item cultural">
                             <div class="schedule-time">10:00am</div>
-                            <div class="schedule-desc">Meiji Jingu (45 min - 1 hour)</div>
+                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/Meiji+Jingu/" target="_blank" class="highlight">Meiji Jingu Shrine</a> — Peaceful forest walk, iconic (45 min - 1 hour)</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item shopping">
                             <div class="schedule-time">11:00am</div>
                             <div class="schedule-desc">Quick <a href="https://www.google.com/maps/place/Harajuku/" target="_blank">Harajuku</a>/<a href="https://www.google.com/maps/place/Omotesando/" target="_blank">Omotesando</a> hits</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item food">
                             <div class="schedule-time">12:30pm</div>
                             <div class="schedule-desc"><span class="highlight">Lunch:</span> Harajuku area</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item shopping">
                             <div class="schedule-time">2:00pm</div>
                             <div class="schedule-desc"><span class="highlight"><a href="https://www.google.com/maps/place/Koenji/" target="_blank">Koenji</a> vintage:</span> <a href="https://www.google.com/maps/search/Slat+Koenji/" target="_blank">Slat</a> (Levi's 501s), <a href="https://www.google.com/maps/search/Whistler+Koenji/" target="_blank">Whistler</a>, side streets</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item food">
                             <div class="schedule-time">7:00pm</div>
                             <div class="schedule-desc"><span class="highlight">Dinner:</span> <a href="https://www.google.com/maps/place/Omoide+Yokocho/" target="_blank">Omoide Yokocho</a> — yakitori, tiny stalls, smoky vibes</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item food">
                             <div class="schedule-time">9:00pm</div>
                             <div class="schedule-desc"><span class="highlight"><a href="https://www.google.com/maps/place/Golden+Gai/" target="_blank">Golden Gai</a></span> — Bar hop (<a href="https://www.google.com/maps/search/Albatross+Golden+Gai/" target="_blank">Albatross</a>, <a href="https://www.google.com/maps/search/The+Open+Book+Golden+Gai/" target="_blank">The Open Book</a>)</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item food">
                             <div class="schedule-time">10:30pm</div>
                             <div class="schedule-desc"><a href="https://www.google.com/maps/place/DUG/" target="_blank" class="highlight">Dug Jazz Cafe</a> — Legendary jazz bar</div>
                         </div>
@@ -1202,26 +1225,20 @@
                 </div>
                 <div class="day-content">
                     <div class="day-inner">
-                        <p class="section-title">Cultural</p>
-                        <div class="schedule-item">
-                            <div class="schedule-time">10:30am</div>
-                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/Nezu+Shrine/" target="_blank" class="highlight">Nezu Shrine</a> — Red torii gates, less touristy</div>
-                        </div>
-
                         <p class="section-title">Schedule</p>
                         <div class="schedule-item">
                             <div class="schedule-time">10:00am</div>
                             <div class="schedule-desc">Leave hotel</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item cultural">
                             <div class="schedule-time">10:30am</div>
-                            <div class="schedule-desc">Nezu Shrine (45 min)</div>
+                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/Nezu+Shrine/" target="_blank" class="highlight">Nezu Shrine</a> — Red torii gates, less touristy (45 min)</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item food">
                             <div class="schedule-time">12:00pm</div>
                             <div class="schedule-desc"><span class="highlight">Lunch:</span> <a href="https://www.google.com/maps/place/Nakameguro/" target="_blank">Nakameguro</a> canal-side cafe</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item shopping">
                             <div class="schedule-time">1:00pm</div>
                             <div class="schedule-desc"><span class="highlight">Browse:</span> <a href="https://www.google.com/maps/place/COW+BOOKS/" target="_blank">Cow Books</a>, <a href="https://www.google.com/maps/place/Okura/" target="_blank">Okura</a> (indigo), <a href="https://www.google.com/maps/place/Daikanyama+T-Site/" target="_blank">T-Site Tsutaya</a></div>
                         </div>
@@ -1229,15 +1246,15 @@
                             <div class="schedule-time">4:30pm</div>
                             <div class="schedule-desc">Head back to hotel</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item food">
                             <div class="schedule-time">7:00pm</div>
                             <div class="schedule-desc"><span class="highlight">Dinner:</span> Casual neighborhood spot</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item food">
                             <div class="schedule-time">9:00pm</div>
                             <div class="schedule-desc"><a href="https://www.google.com/maps/place/Nonbei+Yokocho/" target="_blank" class="highlight">Nonbei Yokocho</a> — Old-school tiny bar alley (Shibuya)</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item food">
                             <div class="schedule-time">10:30pm</div>
                             <div class="schedule-desc"><a href="https://www.google.com/maps/place/The+SG+Club/" target="_blank" class="highlight">SG Club</a> if you missed it earlier</div>
                         </div>
@@ -1261,30 +1278,24 @@
                 </div>
                 <div class="day-content">
                     <div class="day-inner">
-                        <p class="section-title">Cultural</p>
-                        <div class="schedule-item">
-                            <div class="schedule-time">10:00am</div>
-                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/Senso-ji+Temple/" target="_blank" class="highlight">Senso-ji Temple</a> — Classic, iconic, Nakamise shopping</div>
-                        </div>
-
                         <p class="section-title">Schedule</p>
                         <div class="schedule-item">
                             <div class="schedule-time">9:30am</div>
                             <div class="schedule-desc">Leave hotel</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item cultural">
                             <div class="schedule-time">10:00am</div>
-                            <div class="schedule-desc">Senso-ji, <a href="https://www.google.com/maps/place/Nakamise-dori+Street/" target="_blank">Nakamise-dori</a></div>
+                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/Senso-ji+Temple/" target="_blank" class="highlight">Senso-ji Temple</a> — Classic, iconic + <a href="https://www.google.com/maps/place/Nakamise-dori+Street/" target="_blank">Nakamise-dori</a> shopping</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item shopping">
                             <div class="schedule-time">11:30am</div>
-                            <div class="schedule-desc">Optional: <a href="https://www.google.com/maps/place/Kappabashi+Kitchen+Town/" target="_blank">Kappabashi</a> (kitchen street)</div>
+                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/Kappabashi+Kitchen+Town/" target="_blank">Kappabashi</a> — Kitchen street (optional)</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item food">
                             <div class="schedule-time">12:30pm</div>
                             <div class="schedule-desc"><span class="highlight">Lunch:</span> <a href="https://www.google.com/maps/place/Asakusa/" target="_blank">Asakusa</a> (tempura, soba, unagi)</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item cultural">
                             <div class="schedule-time">2:30pm</div>
                             <div class="schedule-desc"><a href="https://www.google.com/maps/place/Yanaka+Ginza/" target="_blank" class="highlight">Yanaka Ginza</a> — "Old Tokyo" retro streets</div>
                         </div>
@@ -1292,13 +1303,13 @@
                             <div class="schedule-time">5:00pm</div>
                             <div class="schedule-desc">Back to hotel, rest + change</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item food">
                             <div class="schedule-time">7:30pm</div>
                             <div class="schedule-desc"><span class="highlight">Michelin #2:</span> <a href="https://www.google.com/maps/place/Nihonryori+RyuGin/" target="_blank">RyuGin</a> or <a href="https://www.google.com/maps/place/Den/" target="_blank">Den</a> (kaiseki)</div>
                         </div>
-                        <div class="schedule-item">
+                        <div class="schedule-item food">
                             <div class="schedule-time">10:30pm</div>
-                            <div class="schedule-desc">Final drinks — <a href="https://www.google.com/maps/place/DUG/" target="_blank">Dug Jazz</a> or hotel bar</div>
+                            <div class="schedule-desc"><span class="highlight">Final drinks:</span> <a href="https://www.google.com/maps/place/DUG/" target="_blank">Dug Jazz</a> or hotel bar</div>
                         </div>
 
                         <a href="https://www.google.com/maps/dir/Senso-ji+Temple/Kappabashi+Kitchen+Town/Yanaka+Ginza" target="_blank" class="link-btn">Day Route</a>
@@ -1451,7 +1462,6 @@
                 <option value="12">Day 12 - Asakusa</option>
                 <option value="13">Day 13 - Fly Home</option>
             </select>
-            <input type="text" id="commentAuthor" placeholder="Your name" />
             <textarea id="commentContent" placeholder="Add a comment..."></textarea>
             <button onclick="submitComment()">Add Comment</button>
         </div>
@@ -1473,7 +1483,6 @@
                 <option value="12">Day 12 - Asakusa</option>
                 <option value="13">Day 13 - Fly Home</option>
             </select>
-            <input type="text" id="requestAuthor" placeholder="Your name" />
             <input type="text" id="requestTitle" placeholder="Request title" />
             <textarea id="requestContent" placeholder="What do you want to change/add?"></textarea>
             <button onclick="submitRequest()">Submit Request</button>
@@ -1603,7 +1612,6 @@
             content.innerHTML = comments.map(c => `
                 <div class="item-card">
                     <div class="item-header">
-                        <span class="item-author">${escapeHtml(c.author)}</span>
                         <span class="item-day">Day ${c.dayNumber} - ${dayNames[c.dayNumber] || 'General'}</span>
                     </div>
                     <div class="item-content">${escapeHtml(c.content)}</div>
@@ -1626,10 +1634,9 @@
             content.innerHTML = requests.map(r => `
                 <div class="item-card ${r.status}">
                     <div class="item-header">
-                        <span class="item-author">${escapeHtml(r.author)}</span>
+                        <span class="item-title">${escapeHtml(r.title)}</span>
                         <span class="item-status status-${r.status}">${r.status}</span>
                     </div>
-                    <div class="item-title">${escapeHtml(r.title)}</div>
                     ${r.dayNumber !== null ? `<span class="item-day">Day ${r.dayNumber} - ${dayNames[r.dayNumber] || 'General'}</span>` : ''}
                     <div class="item-content">${escapeHtml(r.content)}</div>
                     <div class="item-footer">
@@ -1648,11 +1655,10 @@
 
         async function submitComment() {
             const dayNumber = parseInt(document.getElementById('commentDay').value) || 0;
-            const author = document.getElementById('commentAuthor').value.trim();
             const content = document.getElementById('commentContent').value.trim();
 
-            if (!author || !content) {
-                alert('Please fill in your name and comment');
+            if (!content) {
+                alert('Please add a comment');
                 return;
             }
 
@@ -1660,7 +1666,7 @@
                 await fetch('/api/comments', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ dayNumber, author, content })
+                    body: JSON.stringify({ dayNumber, author: 'Anonymous', content })
                 });
                 document.getElementById('commentContent').value = '';
                 loadComments();
@@ -1672,11 +1678,10 @@
         async function submitRequest() {
             const dayValue = document.getElementById('requestDay').value;
             const dayNumber = dayValue === '' ? null : parseInt(dayValue);
-            const author = document.getElementById('requestAuthor').value.trim();
             const title = document.getElementById('requestTitle').value.trim();
             const content = document.getElementById('requestContent').value.trim();
 
-            if (!author || !title || !content) {
+            if (!title || !content) {
                 alert('Please fill in all fields');
                 return;
             }
@@ -1685,7 +1690,7 @@
                 await fetch('/api/requests', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ dayNumber, author, title, content })
+                    body: JSON.stringify({ dayNumber, author: 'Anonymous', title, content })
                 });
                 document.getElementById('requestTitle').value = '';
                 document.getElementById('requestContent').value = '';
