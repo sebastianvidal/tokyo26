@@ -4,6 +4,7 @@
   "description": "Tokyo + Niseko Honeymoon Itinerary",
   "main": "server.js",
   "scripts": {
+    "build": "prisma generate && prisma db push",
     "start": "node server.js",
     "dev": "node --watch server.js",
     "db:push": "npx prisma db push",
