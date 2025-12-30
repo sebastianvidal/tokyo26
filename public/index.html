@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tokyo + Niseko Honeymoon 2025</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0a0a0a;
+            --card: #141414;
+            --card-hover: #1a1a1a;
+            --border: #262626;
+            --text: #fafafa;
+            --text-muted: #a1a1aa;
+            --accent: #f97316;
+            --accent-soft: rgba(249, 115, 22, 0.1);
+            --tokyo: #ec4899;
+            --niseko: #06b6d4;
+            --travel: #a855f7;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Simple Header */
+        .header {
+            padding: 3rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-dates {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .header-tags {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .header-tag {
+            padding: 0.375rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .header-tag.tokyo { background: rgba(236, 72, 153, 0.2); color: #f472b6; }
+        .header-tag.niseko { background: rgba(6, 182, 212, 0.2); color: #22d3ee; }
+
+        /* Navigation */
+        .nav {
+            position: sticky;
+            top: 0;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            padding: 0.75rem 1rem;
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .nav-inner::-webkit-scrollbar { display: none; }
+
+        .nav-btn {
+            padding: 0.5rem 0.875rem;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Main content */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        /* Overview Section */
+        .overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .overview-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.25rem;
+        }
+
+        .overview-card h3 {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .overview-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8rem;
+        }
+
+        .overview-item:last-child { border-bottom: none; }
+        .overview-item span:first-child { color: var(--text-muted); }
+
+        /* Day Cards */
+        .day-section { margin-bottom: 1.5rem; }
+
+        .day-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .day-card:hover { border-color: #333; }
+
+        .day-header {
+            padding: 1.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .day-number {
+            width: 2.75rem;
+            height: 2.75rem;
+            border-radius: 0.625rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.125rem;
+            flex-shrink: 0;
+        }
+
+        .day-number.tokyo { background: rgba(236, 72, 153, 0.2); color: #f472b6; }
+        .day-number.niseko { background: rgba(6, 182, 212, 0.2); color: #22d3ee; }
+        .day-number.travel { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+
+        .day-info { flex: 1; }
+        .day-date { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .day-title { font-size: 1.125rem; font-weight: 600; margin-top: 0.125rem; }
+
+        .day-toggle {
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 50%;
+            background: var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            transition: transform 0.3s;
+        }
+
+        .day-card.open .day-toggle { transform: rotate(180deg); }
+
+        .day-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; }
+        .day-card.open .day-content { max-height: 3000px; }
+
+        .day-inner { padding: 0 1.25rem 1.25rem; border-top: 1px solid var(--border); }
+
+        /* Content sections */
+        .section-title {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            margin: 1.25rem 0 0.625rem;
+            font-weight: 600;
+        }
+
+        .schedule-item {
+            display: flex;
+            gap: 1rem;
+            padding: 0.625rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8rem;
+        }
+
+        .schedule-item:last-child { border-bottom: none; }
+        .schedule-time { color: var(--text-muted); font-weight: 500; width: 4rem; flex-shrink: 0; }
+        .schedule-desc { flex: 1; }
+        .highlight { color: var(--accent); font-weight: 500; }
+
+        /* Links */
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        .link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            background: var(--accent-soft);
+            border: 1px solid var(--accent);
+            border-radius: 0.375rem;
+            color: var(--accent);
+            font-size: 0.7rem;
+            font-weight: 500;
+            margin-right: 0.375rem;
+            margin-top: 0.375rem;
+            transition: all 0.2s;
+        }
+
+        .link-btn:hover { background: var(--accent); color: var(--bg); text-decoration: none; }
+
+        /* Options grid */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.625rem;
+            margin-top: 0.625rem;
+        }
+
+        .option-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 0.625rem;
+            padding: 0.875rem;
+            font-size: 0.8rem;
+        }
+
+        .option-card h4 { font-weight: 600; margin-bottom: 0.25rem; font-size: 0.8rem; }
+        .option-card p { color: var(--text-muted); font-size: 0.7rem; margin-bottom: 0.5rem; }
+        .option-card.chill { border-left: 3px solid #22d3ee; }
+        .option-card.party { border-left: 3px solid #f472b6; }
+        .option-card .link-btn { margin-top: 0; font-size: 0.65rem; padding: 0.25rem 0.5rem; }
+
+        /* Map section */
+        .map-section { margin: 3rem 0; }
+
+        .map-container {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .map-header { padding: 1.25rem; border-bottom: 1px solid var(--border); }
+        .map-header h2 { font-size: 1.25rem; font-weight: 600; }
+        .map-iframe { width: 100%; height: 350px; border: none; }
+
+        /* Booking checklist */
+        .checklist {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            margin: 3rem 0;
+        }
+
+        .checklist h2 { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.75rem; }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 0.625rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8rem;
+        }
+
+        .checklist-item:last-child { border-bottom: none; }
+        .checklist-item input[type="checkbox"] { width: 1.125rem; height: 1.125rem; accent-color: var(--accent); }
+        .checklist-item.checked label { text-decoration: line-through; color: var(--text-muted); }
+
+        /* Footer */
+        .footer { text-align: center; padding: 3rem 2rem; color: var(--text-muted); font-size: 0.8rem; }
+
+        /* Mobile */
+        @media (max-width: 640px) {
+            .header h1 { font-size: 1.5rem; }
+            .day-header { padding: 1rem; }
+            .day-inner { padding: 0 1rem 1rem; }
+            .schedule-time { width: 3.25rem; font-size: 0.7rem; }
+        }
+
+        /* Comments/Requests Panel */
+        .panel-toggle {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 50%;
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            z-index: 200;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+            transition: transform 0.2s;
+        }
+        .panel-toggle:hover { transform: scale(1.1); }
+        .panel-toggle .badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.65rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .panel-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 250;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .panel-overlay.open { opacity: 1; pointer-events: auto; }
+
+        .panel {
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: min(400px, 90vw);
+            background: var(--bg);
+            border-left: 1px solid var(--border);
+            z-index: 300;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-out;
+            display: flex;
+            flex-direction: column;
+        }
+        .panel.open { transform: translateX(0); }
+
+        .panel-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .panel-header h2 { font-size: 1.125rem; font-weight: 600; }
+        .panel-close { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
+
+        .panel-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+        }
+        .panel-tab {
+            flex: 1;
+            padding: 0.75rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        .panel-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .panel-form {
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+            background: var(--card);
+        }
+        .panel-form input, .panel-form textarea, .panel-form select {
+            width: 100%;
+            padding: 0.625rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text);
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            font-family: inherit;
+        }
+        .panel-form textarea { resize: vertical; min-height: 60px; }
+        .panel-form button {
+            width: 100%;
+            padding: 0.625rem;
+            background: var(--accent);
+            border: none;
+            border-radius: 0.5rem;
+            color: var(--bg);
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .comment-item, .request-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 0.875rem;
+            margin-bottom: 0.75rem;
+        }
+        .comment-item .meta, .request-item .meta {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 0.375rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        .comment-item .content, .request-item .content { font-size: 0.8rem; }
+        .request-item .title { font-weight: 600; margin-bottom: 0.25rem; }
+        .request-item .status {
+            display: inline-block;
+            padding: 0.125rem 0.5rem;
+            border-radius: 1rem;
+            font-size: 0.65rem;
+            font-weight: 500;
+        }
+        .status.pending { background: rgba(234, 179, 8, 0.2); color: #facc15; }
+        .status.approved { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .status.rejected { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+        .delete-btn:hover { color: #ef4444; }
+        .empty-state { text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 2rem; }
+
+        /* Item cards in panel */
+        .item-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        .item-card.approved { border-left: 3px solid #22c55e; }
+        .item-card.rejected { border-left: 3px solid #ef4444; opacity: 0.6; }
+        .item-card.pending { border-left: 3px solid #facc15; }
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .item-author {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--accent);
+        }
+        .item-day {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            background: rgba(255,255,255,0.05);
+            padding: 0.125rem 0.5rem;
+            border-radius: 1rem;
+        }
+        .item-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        .item-content {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        .item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .item-date {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+        .item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .item-delete {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0.25rem;
+            line-height: 1;
+        }
+        .item-delete:hover { color: #ef4444; }
+        .btn-approve, .btn-reject {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+        }
+        .btn-approve { color: #22c55e; }
+        .btn-approve:hover { background: rgba(34, 197, 94, 0.2); }
+        .btn-reject { color: #ef4444; }
+        .btn-reject:hover { background: rgba(239, 68, 68, 0.2); }
+        .item-status {
+            font-size: 0.65rem;
+            font-weight: 500;
+            padding: 0.125rem 0.5rem;
+            border-radius: 1rem;
+        }
+        .status-pending { background: rgba(234, 179, 8, 0.2); color: #facc15; }
+        .status-approved { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .status-rejected { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    </style>
+</head>
+<body>
+    <!-- Simple Header -->
+    <header class="header">
+        <h1>Tokyo + Niseko 2025</h1>
+        <p class="header-dates">January 19 - February 1</p>
+        <div class="header-tags">
+            <span class="header-tag tokyo">6 Days Tokyo</span>
+            <span class="header-tag niseko">4 Days Skiing</span>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <button class="nav-btn" onclick="scrollToSection('overview')">Overview</button>
+            <button class="nav-btn" onclick="scrollToSection('day-1')">Arrive</button>
+            <button class="nav-btn" onclick="scrollToSection('day-2')">Shimokita</button>
+            <button class="nav-btn" onclick="scrollToSection('day-3')">Ginza</button>
+            <button class="nav-btn" onclick="scrollToSection('day-4')">Koenji</button>
+            <button class="nav-btn" onclick="scrollToSection('day-5')">→ Niseko</button>
+            <button class="nav-btn" onclick="scrollToSection('day-6')">Ski 1</button>
+            <button class="nav-btn" onclick="scrollToSection('day-7')">Ski 2</button>
+            <button class="nav-btn" onclick="scrollToSection('day-8')">Ski 3</button>
+            <button class="nav-btn" onclick="scrollToSection('day-9')">Ski 4</button>
+            <button class="nav-btn" onclick="scrollToSection('day-10')">→ Tokyo</button>
+            <button class="nav-btn" onclick="scrollToSection('day-11')">Nakameguro</button>
+            <button class="nav-btn" onclick="scrollToSection('day-12')">Asakusa</button>
+            <button class="nav-btn" onclick="scrollToSection('day-13')">Home</button>
+            <button class="nav-btn" onclick="scrollToSection('checklist')">Checklist</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Overview -->
+        <section id="overview" class="overview">
+            <div class="overview-card">
+                <h3>Flights</h3>
+                <div class="overview-item"><span>Outbound</span><span>EWR → HND Jan 19</span></div>
+                <div class="overview-item"><span>To Niseko</span><span>HND → CTS Jan 24</span></div>
+                <div class="overview-item"><span>Back</span><span>CTS → HND Jan 29</span></div>
+                <div class="overview-item"><span>Home</span><span>HND → EWR Feb 1</span></div>
+            </div>
+            <div class="overview-card">
+                <h3>Hotels</h3>
+                <div class="overview-item"><span>Tokyo 1</span><span>ANA Intercontinental</span></div>
+                <div class="overview-item"><span>Niseko</span><span>Aya Niseko</span></div>
+                <div class="overview-item"><span>Tokyo 2</span><span>Splurge TBD</span></div>
+            </div>
+            <div class="overview-card">
+                <h3>Highlights</h3>
+                <div class="overview-item"><span>Ski Days</span><span>4 + night session</span></div>
+                <div class="overview-item"><span>Michelin</span><span>2 dinners</span></div>
+                <div class="overview-item"><span>Neighborhoods</span><span>8 explored</span></div>
+            </div>
+        </section>
+
+        <!-- Day 0 -->
+        <section id="day-0" class="day-section">
+            <div class="day-card">
+                <div class="day-header" onclick="toggleDay(this)">
+                    <div class="day-number travel">0</div>
+                    <div class="day-info">
+                        <div class="day-date">Sunday, January 19</div>
+                        <div class="day-title">Travel Day</div>
+                    </div>
+                    <div class="day-toggle">▼</div>
+                </div>
+                <div class="day-content">
+                    <div class="day-inner">
+                        <p class="section-title">Flight</p>
+                        <div class="schedule-item">
+                            <div class="schedule-time">~9:40am</div>
+                            <div class="schedule-desc">Depart <a href="https://www.google.com/maps/place/Newark+Liberty+International+Airport/" target="_blank">EWR</a> → HND (United UA131, 14h 40m)</div>
+                        </div>
+                        <a href="https://www.united.com" target="_blank" class="link-btn">Book United</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Day 1 -->
+        <section id="day-1" class="day-section">
+            <div class="day-card">
+                <div class="day-header" onclick="toggleDay(this)">
+                    <div class="day-number tokyo">1</div>
+                    <div class="day-info">
+                        <div class="day-date">Monday, January 20</div>
+                        <div class="day-title">Arrival — Low-Key Landing</div>
+                    </div>
+                    <div class="day-toggle">▼</div>
+                </div>
+                <div class="day-content">
+                    <div class="day-inner">
+                        <p class="section-title">Schedule</p>
+                        <div class="schedule-item">
+                            <div class="schedule-time">2:20pm</div>
+                            <div class="schedule-desc">Land at <a href="https://www.google.com/maps/place/Haneda+Airport/" target="_blank">Haneda Terminal 3</a></div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">3:30pm</div>
+                            <div class="schedule-desc">Clear customs, grab bags</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">4:30pm</div>
+                            <div class="schedule-desc">Check in at <a href="https://www.google.com/maps/place/ANA+InterContinental+Tokyo/" target="_blank" class="highlight">ANA Intercontinental</a></div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">6:30pm</div>
+                            <div class="schedule-desc">Neighborhood walk around <a href="https://www.google.com/maps/place/Akasaka,+Tokyo/" target="_blank">Akasaka</a></div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">7:30pm</div>
+                            <div class="schedule-desc"><span class="highlight">Dinner:</span> Casual izakaya or ramen</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">9:30pm</div>
+                            <div class="schedule-desc">Nightcap at hotel bar</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">10:30pm</div>
+                            <div class="schedule-desc">Crash — bank the sleep</div>
+                        </div>
+                        <a href="https://www.google.com/maps/dir/Haneda+Airport,+Tokyo,+Japan/ANA+InterContinental+Tokyo" target="_blank" class="link-btn">Route to Hotel</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Day 2 -->
+        <section id="day-2" class="day-section">
+            <div class="day-card">
+                <div class="day-header" onclick="toggleDay(this)">
+                    <div class="day-number tokyo">2</div>
+                    <div class="day-info">
+                        <div class="day-date">Tuesday, January 21</div>
+                        <div class="day-title">Shimokitazawa Vintage Day</div>
+                    </div>
+                    <div class="day-toggle">▼</div>
+                </div>
+                <div class="day-content">
+                    <div class="day-inner">
+                        <p class="section-title">Cultural</p>
+                        <div class="schedule-item">
+                            <div class="schedule-time">10:00am</div>
+                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/Gotokuji+Temple/" target="_blank" class="highlight">Gotoku-ji Temple</a> — Lucky cat temple, hundreds of maneki-neko</div>
+                        </div>
+
+                        <p class="section-title">Schedule</p>
+                        <div class="schedule-item">
+                            <div class="schedule-time">9:30am</div>
+                            <div class="schedule-desc">Leave hotel</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">11:00am</div>
+                            <div class="schedule-desc">Walk to <a href="https://www.google.com/maps/place/Shimokitazawa/" target="_blank">Shimokitazawa</a></div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">11:30am</div>
+                            <div class="schedule-desc"><span class="highlight">Vintage:</span> <a href="https://www.google.com/maps/search/Flamingo+Shimokitazawa/" target="_blank">Flamingo</a>, <a href="https://www.google.com/maps/search/New+York+Joe+Exchange+Shimokitazawa/" target="_blank">New York Joe Exchange</a>, <a href="https://www.google.com/maps/search/Haight+Ashbury+Shimokitazawa/" target="_blank">Haight & Ashbury</a></div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">1:00pm</div>
+                            <div class="schedule-desc"><span class="highlight">Lunch:</span> Casual Shimokita spot (curry, ramen, kissaten)</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">4:30pm</div>
+                            <div class="schedule-desc">Head back, rest up</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">7:00pm</div>
+                            <div class="schedule-desc"><span class="highlight">Dinner:</span> Mid-range Japanese</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">9:30pm</div>
+                            <div class="schedule-desc"><span class="highlight">Drinks:</span> <a href="https://www.google.com/maps/search/Bar+Piano+Shimokitazawa/" target="_blank">Bar Piano</a> (jazz) or <a href="https://www.google.com/maps/place/The+SG+Club/" target="_blank">SG Club</a> (Shibuya)</div>
+                        </div>
+
+                        <a href="https://www.google.com/maps/dir/ANA+InterContinental+Tokyo/Gotokuji+Temple/Shimokitazawa+Station" target="_blank" class="link-btn">Day Route</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Day 3 -->
+        <section id="day-3" class="day-section">
+            <div class="day-card">
+                <div class="day-header" onclick="toggleDay(this)">
+                    <div class="day-number tokyo">3</div>
+                    <div class="day-info">
+                        <div class="day-date">Wednesday, January 22</div>
+                        <div class="day-title">Ginza Luxury + Michelin #1</div>
+                    </div>
+                    <div class="day-toggle">▼</div>
+                </div>
+                <div class="day-content">
+                    <div class="day-inner">
+                        <p class="section-title">Cultural</p>
+                        <div class="schedule-item">
+                            <div class="schedule-time">10:30am</div>
+                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/teamLab+Planets+TOKYO/" target="_blank" class="highlight">TeamLab Planets</a> — Immersive digital art, book ahead!</div>
+                        </div>
+
+                        <p class="section-title">Schedule</p>
+                        <div class="schedule-item">
+                            <div class="schedule-time">10:00am</div>
+                            <div class="schedule-desc">Leave hotel</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">10:30am</div>
+                            <div class="schedule-desc">TeamLab Planets (~2 hours)</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">1:00pm</div>
+                            <div class="schedule-desc">Train to <a href="https://www.google.com/maps/place/Ginza/" target="_blank">Ginza</a></div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">1:30pm</div>
+                            <div class="schedule-desc"><span class="highlight">Lunch:</span> Department store food hall or tonkatsu</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">2:30pm</div>
+                            <div class="schedule-desc"><span class="highlight">Shopping:</span> <a href="https://www.google.com/maps/place/Dover+Street+Market+Ginza/" target="_blank">Dover Street Market</a>, <a href="https://www.google.com/maps/place/UNIQLO+TOKYO/" target="_blank">Uniqlo flagship</a>, <a href="https://www.google.com/maps/place/Itoya/" target="_blank">Itoya</a></div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">6:00pm</div>
+                            <div class="schedule-desc">Back to hotel, change for dinner</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">7:30pm</div>
+                            <div class="schedule-desc"><span class="highlight">Michelin:</span> <a href="https://www.google.com/maps/place/Sushi+Kanesaka/" target="_blank">Sushi Kanesaka</a> or <a href="https://www.google.com/maps/place/Tempura+Kondo/" target="_blank">Tempura Kondo</a></div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">10:00pm</div>
+                            <div class="schedule-desc">Nightcap — <a href="https://www.google.com/maps/place/Star+Bar+Ginza/" target="_blank">Star Bar Ginza</a> or hotel</div>
+                        </div>
+
+                        <a href="https://www.teamlab.art/e/planets/" target="_blank" class="link-btn">TeamLab Tickets</a>
+                        <a href="https://www.google.com/maps/dir/ANA+InterContinental+Tokyo/teamLab+Planets+TOKYO/Ginza+Station" target="_blank" class="link-btn">Day Route</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Day 4 -->
+        <section id="day-4" class="day-section">
+            <div class="day-card">
+                <div class="day-header" onclick="toggleDay(this)">
+                    <div class="day-number tokyo">4</div>
+                    <div class="day-info">
+                        <div class="day-date">Thursday, January 23</div>
+                        <div class="day-title">Koenji Deep Cuts + Shinjuku Night</div>
+                    </div>
+                    <div class="day-toggle">▼</div>
+                </div>
+                <div class="day-content">
+                    <div class="day-inner">
+                        <p class="section-title">Cultural</p>
+                        <div class="schedule-item">
+                            <div class="schedule-time">10:00am</div>
+                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/Meiji+Jingu/" target="_blank" class="highlight">Meiji Jingu Shrine</a> — Peaceful forest walk, iconic</div>
+                        </div>
+
+                        <p class="section-title">Schedule</p>
+                        <div class="schedule-item">
+                            <div class="schedule-time">9:30am</div>
+                            <div class="schedule-desc">Leave hotel</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">10:00am</div>
+                            <div class="schedule-desc">Meiji Jingu (45 min - 1 hour)</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">11:00am</div>
+                            <div class="schedule-desc">Quick <a href="https://www.google.com/maps/place/Harajuku/" target="_blank">Harajuku</a>/<a href="https://www.google.com/maps/place/Omotesando/" target="_blank">Omotesando</a> hits</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">12:30pm</div>
+                            <div class="schedule-desc"><span class="highlight">Lunch:</span> Harajuku area</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">2:00pm</div>
+                            <div class="schedule-desc"><span class="highlight"><a href="https://www.google.com/maps/place/Koenji/" target="_blank">Koenji</a> vintage:</span> <a href="https://www.google.com/maps/search/Slat+Koenji/" target="_blank">Slat</a> (Levi's 501s), <a href="https://www.google.com/maps/search/Whistler+Koenji/" target="_blank">Whistler</a>, side streets</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">7:00pm</div>
+                            <div class="schedule-desc"><span class="highlight">Dinner:</span> <a href="https://www.google.com/maps/place/Omoide+Yokocho/" target="_blank">Omoide Yokocho</a> — yakitori, tiny stalls, smoky vibes</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">9:00pm</div>
+                            <div class="schedule-desc"><span class="highlight"><a href="https://www.google.com/maps/place/Golden+Gai/" target="_blank">Golden Gai</a></span> — Bar hop (<a href="https://www.google.com/maps/search/Albatross+Golden+Gai/" target="_blank">Albatross</a>, <a href="https://www.google.com/maps/search/The+Open+Book+Golden+Gai/" target="_blank">The Open Book</a>)</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">10:30pm</div>
+                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/DUG/" target="_blank" class="highlight">Dug Jazz Cafe</a> — Legendary jazz bar</div>
+                        </div>
+
+                        <a href="https://www.google.com/maps/dir/ANA+InterContinental+Tokyo/Meiji+Jingu/Harajuku+Station/Koenji+Station/Shinjuku+Station" target="_blank" class="link-btn">Day Route</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Day 5 - Travel to Niseko -->
+        <section id="day-5" class="day-section">
+            <div class="day-card">
+                <div class="day-header" onclick="toggleDay(this)">
+                    <div class="day-number travel">5</div>
+                    <div class="day-info">
+                        <div class="day-date">Friday, January 24</div>
+                        <div class="day-title">Travel to Niseko + Night Skiing</div>
+                    </div>
+                    <div class="day-toggle">▼</div>
+                </div>
+                <div class="day-content">
+                    <div class="day-inner">
+                        <p class="section-title">Schedule (White Liner Bus)</p>
+                        <div class="schedule-item">
+                            <div class="schedule-time">7:30am</div>
+                            <div class="schedule-desc">Wake up</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">8:30am</div>
+                            <div class="schedule-desc">Leave hotel for <a href="https://www.google.com/maps/place/Haneda+Airport+Terminal+1/" target="_blank">Haneda</a></div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">10:00am</div>
+                            <div class="schedule-desc">Flight HND → CTS (1.5 hours)</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">11:30am</div>
+                            <div class="schedule-desc">Land at <a href="https://www.google.com/maps/place/New+Chitose+Airport/" target="_blank">New Chitose Airport</a></div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">12:15pm</div>
+                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/New+Chitose+Airport+Bus+Terminal/" target="_blank" class="highlight">White Liner bus</a> to Niseko (~2.5-3 hours)</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">3:00pm</div>
+                            <div class="schedule-desc">Arrive <a href="https://www.google.com/maps/place/Hirafu/" target="_blank">Hirafu</a>, check in at <a href="https://www.google.com/maps/place/Aya+Niseko/" target="_blank" class="highlight">Aya Niseko</a></div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">3:30pm</div>
+                            <div class="schedule-desc">Grab gear at <a href="https://www.google.com/maps/place/Rhythm+Niseko+Hirafu/" target="_blank">Rhythm Japan</a></div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">4-7pm</div>
+                            <div class="schedule-desc"><span class="highlight">Night skiing!</span> <a href="https://www.google.com/maps/place/Niseko+Grand+Hirafu/" target="_blank">Grand Hirafu</a> — heated gondola, 10km lit terrain</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">8:00pm</div>
+                            <div class="schedule-desc"><span class="highlight">Dinner + Après:</span> Aya restaurant or Hirafu village</div>
+                        </div>
+
+                        <a href="https://goodsports.co.jp/white_eng/ski-bus/" target="_blank" class="link-btn">White Liner Bus</a>
+                        <a href="https://rhythmjapan.com/" target="_blank" class="link-btn">Rhythm Rentals</a>
+                        <a href="https://www.grand-hirafu.jp/en/activities/night-skiing/" target="_blank" class="link-btn">Night Ski Info</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Day 6: Ski Day 1 -->
+        <section id="day-6" class="day-section">
+            <div class="day-card">
+                <div class="day-header" onclick="toggleDay(this)">
+                    <div class="day-number niseko">6</div>
+                    <div class="day-info">
+                        <div class="day-date">Saturday, January 25</div>
+                        <div class="day-title">Ski Day 1</div>
+                    </div>
+                    <div class="day-toggle">▼</div>
+                </div>
+                <div class="day-content">
+                    <div class="day-inner">
+                        <p class="section-title">On Mountain</p>
+                        <div class="schedule-item">
+                            <div class="schedule-time">8:30am</div>
+                            <div class="schedule-desc">Lifts open — first chair at <a href="https://www.google.com/maps/place/Niseko+Grand+Hirafu/" target="_blank">Grand Hirafu</a></div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">All day</div>
+                            <div class="schedule-desc">Ride the gates, hunt the powder</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">4:00pm</div>
+                            <div class="schedule-desc">Day lifts close (night skiing 4-7pm optional)</div>
+                        </div>
+
+                        <p class="section-title">Après Options</p>
+                        <div class="options-grid">
+                            <div class="option-card chill">
+                                <h4>Bar Gyu+ (Fridge Door)</h4>
+                                <p>Hidden speakeasy, whiskey, intimate</p>
+                                <a href="https://www.google.com/maps/search/Bar+Gyu+Niseko+Hirafu/" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card chill">
+                                <h4>Toshiro's Bar</h4>
+                                <p>Award-winning cocktails, high-end (at Sansui Niseko)</p>
+                                <a href="https://www.google.com/maps/place/Sansui+Niseko/" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card party">
+                                <h4>Tamashii Bar</h4>
+                                <p>Main street, good food, DJs (across from Seicomart)</p>
+                                <a href="https://www.google.com/maps/search/Tamashii+Bar+Niseko/" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card party">
+                                <h4>Half Note Bar</h4>
+                                <p>Live music, sports screens</p>
+                                <a href="https://www.google.com/maps/search/Half+Note+Bar+Niseko/" target="_blank" class="link-btn">Map</a>
+                            </div>
+                        </div>
+
+                        <p class="section-title">Dinner</p>
+                        <div class="schedule-item">
+                            <div class="schedule-time">Options</div>
+                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/Rakuichi+Soba/" target="_blank" class="highlight">Rakuichi Soba</a> (handmade), <a href="https://www.google.com/maps/search/An+Dining+Niseko/" target="_blank" class="highlight">An Dining</a> (upscale fusion), <a href="https://www.google.com/maps/search/Niseko+Pizza/" target="_blank">Niseko Pizza</a> (casual)</div>
+                        </div>
+
+                        <a href="https://niseko.nadare.info/" target="_blank" class="link-btn">Avalanche Conditions</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Day 7: Ski Day 2 -->
+        <section id="day-7" class="day-section">
+            <div class="day-card">
+                <div class="day-header" onclick="toggleDay(this)">
+                    <div class="day-number niseko">7</div>
+                    <div class="day-info">
+                        <div class="day-date">Sunday, January 26</div>
+                        <div class="day-title">Ski Day 2</div>
+                    </div>
+                    <div class="day-toggle">▼</div>
+                </div>
+                <div class="day-content">
+                    <div class="day-inner">
+                        <p class="section-title">Après Options</p>
+                        <div class="options-grid">
+                            <div class="option-card chill">
+                                <h4>Musu Bar + Bistro</h4>
+                                <p>Fireplace, craft cocktails, upscale (2F Odin Place)</p>
+                                <a href="https://www.google.com/maps/search/Musu+Bar+Niseko/" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card chill">
+                                <h4>Niseko Confidential</h4>
+                                <p>New Tokyo Confidential outpost, creative cocktails</p>
+                                <a href="https://www.google.com/maps/search/Niseko+Confidential/" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card party">
+                                <h4>Tamashii Bar</h4>
+                                <p>Weekend DJs, games, pool table</p>
+                                <a href="https://www.google.com/maps/search/Tamashii+Bar+Niseko/" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card party">
+                                <h4>Powder Room</h4>
+                                <p>Actual nightclub, dance floor + champagne</p>
+                                <a href="https://www.google.com/maps/search/Powder+Room+Niseko/" target="_blank" class="link-btn">Map</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Day 8: Ski Day 3 -->
+        <section id="day-8" class="day-section">
+            <div class="day-card">
+                <div class="day-header" onclick="toggleDay(this)">
+                    <div class="day-number niseko">8</div>
+                    <div class="day-info">
+                        <div class="day-date">Monday, January 27</div>
+                        <div class="day-title">Ski Day 3</div>
+                    </div>
+                    <div class="day-toggle">▼</div>
+                </div>
+                <div class="day-content">
+                    <div class="day-inner">
+                        <p class="section-title">Après Options</p>
+                        <div class="options-grid">
+                            <div class="option-card chill">
+                                <h4>Bar Gyu+</h4>
+                                <p>Worth a second visit</p>
+                                <a href="https://www.google.com/maps/search/Bar+Gyu+Niseko+Hirafu/" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card chill">
+                                <h4>Toshiro's Bar</h4>
+                                <p>Try different whiskeys this time</p>
+                                <a href="https://www.google.com/maps/place/Sansui+Niseko/" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card party">
+                                <h4>Half Note Bar</h4>
+                                <p>Weeknight might be mellower</p>
+                                <a href="https://www.google.com/maps/search/Half+Note+Bar+Niseko/" target="_blank" class="link-btn">Map</a>
+                            </div>
+                        </div>
+
+                        <p class="section-title">Recovery</p>
+                        <div class="schedule-item">
+                            <div class="schedule-time">Evening</div>
+                            <div class="schedule-desc"><span class="highlight">Aya Niseko onsen</span> — Perfect after a hard day in the gates</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Day 9: Ski Day 4 -->
+        <section id="day-9" class="day-section">
+            <div class="day-card">
+                <div class="day-header" onclick="toggleDay(this)">
+                    <div class="day-number niseko">9</div>
+                    <div class="day-info">
+                        <div class="day-date">Tuesday, January 28</div>
+                        <div class="day-title">Ski Day 4 — Last Day on Snow</div>
+                    </div>
+                    <div class="day-toggle">▼</div>
+                </div>
+                <div class="day-content">
+                    <div class="day-inner">
+                        <p class="section-title">Make It Count</p>
+                        <div class="schedule-item">
+                            <div class="schedule-time">All day</div>
+                            <div class="schedule-desc">Hit the gates early if conditions are good. Leave it all out there.</div>
+                        </div>
+
+                        <p class="section-title">Après Options</p>
+                        <div class="options-grid">
+                            <div class="option-card chill">
+                                <h4>Niseko Confidential</h4>
+                                <p>End on a high-end note</p>
+                                <a href="https://www.google.com/maps/search/Niseko+Confidential/" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card party">
+                                <h4>Tamashii → Powder Room</h4>
+                                <p>Last night sendoff</p>
+                                <a href="https://www.google.com/maps/search/Tamashii+Bar+Niseko/" target="_blank" class="link-btn">Map</a>
+                            </div>
+                        </div>
+
+                        <p class="section-title">Reminder</p>
+                        <div class="schedule-item">
+                            <div class="schedule-time">Tonight</div>
+                            <div class="schedule-desc">Pack up — early-ish start tomorrow for Tokyo</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Day 10 - Return to Tokyo -->
+        <section id="day-10" class="day-section">
+            <div class="day-card">
+                <div class="day-header" onclick="toggleDay(this)">
+                    <div class="day-number travel">10</div>
+                    <div class="day-info">
+                        <div class="day-date">Wednesday, January 29</div>
+                        <div class="day-title">Return to Tokyo — Splurge Check-In</div>
+                    </div>
+                    <div class="day-toggle">▼</div>
+                </div>
+                <div class="day-content">
+                    <div class="day-inner">
+                        <p class="section-title">Schedule (White Liner Bus)</p>
+                        <div class="schedule-item">
+                            <div class="schedule-time">7:00am</div>
+                            <div class="schedule-desc">Wake up, pack</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">8:00am</div>
+                            <div class="schedule-desc"><a href="https://www.google.com/maps/search/Hirafu+Welcome+Center/" target="_blank">White Liner bus</a> to CTS (~2.5-3 hours)</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">11:00am</div>
+                            <div class="schedule-desc">Arrive <a href="https://www.google.com/maps/place/New+Chitose+Airport/" target="_blank">New Chitose</a></div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">12:00pm</div>
+                            <div class="schedule-desc">Flight CTS → HND</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">1:30pm</div>
+                            <div class="schedule-desc">Arrive <a href="https://www.google.com/maps/place/Haneda+Airport/" target="_blank">Haneda</a></div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">2:30pm</div>
+                            <div class="schedule-desc">Check in at <span class="highlight">Splurge Hotel</span></div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">3:30pm</div>
+                            <div class="schedule-desc">Settle in, enjoy the hotel</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">4:30pm</div>
+                            <div class="schedule-desc">Onsen / spa / pool time</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">7:00pm</div>
+                            <div class="schedule-desc"><span class="highlight">Dinner:</span> Keep it casual — hotel restaurant or nearby</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">9:30pm</div>
+                            <div class="schedule-desc">Hotel bar or early night</div>
+                        </div>
+
+                        <p class="section-title">Splurge Hotel Options</p>
+                        <a href="https://www.google.com/maps/place/Aman+Tokyo/" target="_blank" class="link-btn">Aman Tokyo</a>
+                        <a href="https://www.google.com/maps/place/HOSHINOYA+Tokyo/" target="_blank" class="link-btn">Hoshinoya Tokyo</a>
+                        <a href="https://www.google.com/maps/place/Four+Seasons+Hotel+Tokyo+at+Otemachi/" target="_blank" class="link-btn">Four Seasons</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Day 11 -->
+        <section id="day-11" class="day-section">
+            <div class="day-card">
+                <div class="day-header" onclick="toggleDay(this)">
+                    <div class="day-number tokyo">11</div>
+                    <div class="day-info">
+                        <div class="day-date">Thursday, January 30</div>
+                        <div class="day-title">Nakameguro + Daikanyama</div>
+                    </div>
+                    <div class="day-toggle">▼</div>
+                </div>
+                <div class="day-content">
+                    <div class="day-inner">
+                        <p class="section-title">Cultural</p>
+                        <div class="schedule-item">
+                            <div class="schedule-time">10:30am</div>
+                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/Nezu+Shrine/" target="_blank" class="highlight">Nezu Shrine</a> — Red torii gates, less touristy</div>
+                        </div>
+
+                        <p class="section-title">Schedule</p>
+                        <div class="schedule-item">
+                            <div class="schedule-time">10:00am</div>
+                            <div class="schedule-desc">Leave hotel</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">10:30am</div>
+                            <div class="schedule-desc">Nezu Shrine (45 min)</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">12:00pm</div>
+                            <div class="schedule-desc"><span class="highlight">Lunch:</span> <a href="https://www.google.com/maps/place/Nakameguro/" target="_blank">Nakameguro</a> canal-side cafe</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">1:00pm</div>
+                            <div class="schedule-desc"><span class="highlight">Browse:</span> <a href="https://www.google.com/maps/place/COW+BOOKS/" target="_blank">Cow Books</a>, <a href="https://www.google.com/maps/place/Okura/" target="_blank">Okura</a> (indigo), <a href="https://www.google.com/maps/place/Daikanyama+T-Site/" target="_blank">T-Site Tsutaya</a></div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">4:30pm</div>
+                            <div class="schedule-desc">Head back to hotel</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">7:00pm</div>
+                            <div class="schedule-desc"><span class="highlight">Dinner:</span> Casual neighborhood spot</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">9:00pm</div>
+                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/Nonbei+Yokocho/" target="_blank" class="highlight">Nonbei Yokocho</a> — Old-school tiny bar alley (Shibuya)</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">10:30pm</div>
+                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/The+SG+Club/" target="_blank" class="highlight">SG Club</a> if you missed it earlier</div>
+                        </div>
+
+                        <a href="https://www.google.com/maps/dir/Nezu+Shrine/Nakameguro+Station/Daikanyama+Station" target="_blank" class="link-btn">Day Route</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Day 12 -->
+        <section id="day-12" class="day-section">
+            <div class="day-card">
+                <div class="day-header" onclick="toggleDay(this)">
+                    <div class="day-number tokyo">12</div>
+                    <div class="day-info">
+                        <div class="day-date">Friday, January 31</div>
+                        <div class="day-title">Asakusa + East Side + Michelin #2</div>
+                    </div>
+                    <div class="day-toggle">▼</div>
+                </div>
+                <div class="day-content">
+                    <div class="day-inner">
+                        <p class="section-title">Cultural</p>
+                        <div class="schedule-item">
+                            <div class="schedule-time">10:00am</div>
+                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/Senso-ji+Temple/" target="_blank" class="highlight">Senso-ji Temple</a> — Classic, iconic, Nakamise shopping</div>
+                        </div>
+
+                        <p class="section-title">Schedule</p>
+                        <div class="schedule-item">
+                            <div class="schedule-time">9:30am</div>
+                            <div class="schedule-desc">Leave hotel</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">10:00am</div>
+                            <div class="schedule-desc">Senso-ji, <a href="https://www.google.com/maps/place/Nakamise-dori+Street/" target="_blank">Nakamise-dori</a></div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">11:30am</div>
+                            <div class="schedule-desc">Optional: <a href="https://www.google.com/maps/place/Kappabashi+Kitchen+Town/" target="_blank">Kappabashi</a> (kitchen street)</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">12:30pm</div>
+                            <div class="schedule-desc"><span class="highlight">Lunch:</span> <a href="https://www.google.com/maps/place/Asakusa/" target="_blank">Asakusa</a> (tempura, soba, unagi)</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">2:30pm</div>
+                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/Yanaka+Ginza/" target="_blank" class="highlight">Yanaka Ginza</a> — "Old Tokyo" retro streets</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">5:00pm</div>
+                            <div class="schedule-desc">Back to hotel, rest + change</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">7:30pm</div>
+                            <div class="schedule-desc"><span class="highlight">Michelin #2:</span> <a href="https://www.google.com/maps/place/Nihonryori+RyuGin/" target="_blank">RyuGin</a> or <a href="https://www.google.com/maps/place/Den/" target="_blank">Den</a> (kaiseki)</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">10:30pm</div>
+                            <div class="schedule-desc">Final drinks — <a href="https://www.google.com/maps/place/DUG/" target="_blank">Dug Jazz</a> or hotel bar</div>
+                        </div>
+
+                        <a href="https://www.google.com/maps/dir/Senso-ji+Temple/Kappabashi+Kitchen+Town/Yanaka+Ginza" target="_blank" class="link-btn">Day Route</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Day 13 -->
+        <section id="day-13" class="day-section">
+            <div class="day-card">
+                <div class="day-header" onclick="toggleDay(this)">
+                    <div class="day-number travel">13</div>
+                    <div class="day-info">
+                        <div class="day-date">Saturday, February 1</div>
+                        <div class="day-title">Final Morning + Fly Home</div>
+                    </div>
+                    <div class="day-toggle">▼</div>
+                </div>
+                <div class="day-content">
+                    <div class="day-inner">
+                        <p class="section-title">Schedule</p>
+                        <div class="schedule-item">
+                            <div class="schedule-time">9:00am</div>
+                            <div class="schedule-desc">Sleep in, slow morning</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">10:00am</div>
+                            <div class="schedule-desc">Hotel breakfast — splurge on it</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">11:00am</div>
+                            <div class="schedule-desc">Last-minute shopping, konbini snack haul</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">1:00pm</div>
+                            <div class="schedule-desc"><span class="highlight">Lunch:</span> Keep it light</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">2:30pm</div>
+                            <div class="schedule-desc">Check out, taxi to <a href="https://www.google.com/maps/place/Haneda+Airport/" target="_blank">Haneda</a> (~40 min)</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">3:30pm</div>
+                            <div class="schedule-desc">Arrive Haneda Terminal 3</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">6:25pm</div>
+                            <div class="schedule-desc"><span class="highlight">Fly home</span> — HND → EWR</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Booking Checklist -->
+        <section id="checklist" class="checklist">
+            <h2>Booking Checklist</h2>
+
+            <p class="section-title">Must Book</p>
+            <div class="checklist-item">
+                <input type="checkbox" id="c1" onchange="toggleChecked(this)">
+                <label for="c1">Flights (United EWR↔HND + ANA/JAL domestic)</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="c2" onchange="toggleChecked(this)">
+                <label for="c2">ANA Intercontinental Tokyo (Jan 20-23)</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="c3" onchange="toggleChecked(this)">
+                <label for="c3">Aya Niseko (Jan 24-28)</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="c4" onchange="toggleChecked(this)">
+                <label for="c4">Splurge hotel (Jan 29-31)</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="c5" onchange="toggleChecked(this)">
+                <label for="c5">White Liner bus (both ways)</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="c6" onchange="toggleChecked(this)">
+                <label for="c6">Ski/board rental (Rhythm Japan)</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="c7" onchange="toggleChecked(this)">
+                <label for="c7">TeamLab Planets tickets</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="c8" onchange="toggleChecked(this)">
+                <label for="c8">Michelin #1 (Sushi Kanesaka / Tempura Kondo)</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="c9" onchange="toggleChecked(this)">
+                <label for="c9">Michelin #2 (RyuGin / Den)</label>
+            </div>
+
+            <p class="section-title">Nice to Have</p>
+            <div class="checklist-item">
+                <input type="checkbox" id="c10" onchange="toggleChecked(this)">
+                <label for="c10">Star Bar Ginza reservation</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="c11" onchange="toggleChecked(this)">
+                <label for="c11">An Dining Niseko (fancy dinner option)</label>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Have an incredible honeymoon!</p>
+        </footer>
+    </div>
+
+    <!-- Comments/Requests Panel -->
+    <button class="panel-toggle" onclick="openPanel()">
+        <span>+</span>
+        <span class="badge" id="pendingBadge" style="display:none">0</span>
+    </button>
+
+    <div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
+
+    <div class="panel" id="panel">
+        <div class="panel-header">
+            <h2>Notes & Requests</h2>
+            <button class="panel-close" onclick="closePanel()">&times;</button>
+        </div>
+        <div class="panel-tabs">
+            <button class="panel-tab active" onclick="switchTab('comments')">Comments</button>
+            <button class="panel-tab" onclick="switchTab('requests')">Requests</button>
+        </div>
+        <div class="panel-content" id="panelContent">
+            <!-- Loaded dynamically -->
+        </div>
+        <div class="panel-form" id="commentForm">
+            <select id="commentDay">
+                <option value="">General</option>
+                <option value="0">Day 0 - Travel</option>
+                <option value="1">Day 1 - Arrival</option>
+                <option value="2">Day 2 - Shimokitazawa</option>
+                <option value="3">Day 3 - Ginza</option>
+                <option value="4">Day 4 - Koenji</option>
+                <option value="5">Day 5 - To Niseko</option>
+                <option value="6">Day 6 - Ski 1</option>
+                <option value="7">Day 7 - Ski 2</option>
+                <option value="8">Day 8 - Ski 3</option>
+                <option value="9">Day 9 - Ski 4</option>
+                <option value="10">Day 10 - Back to Tokyo</option>
+                <option value="11">Day 11 - Nakameguro</option>
+                <option value="12">Day 12 - Asakusa</option>
+                <option value="13">Day 13 - Fly Home</option>
+            </select>
+            <input type="text" id="commentAuthor" placeholder="Your name" />
+            <textarea id="commentContent" placeholder="Add a comment..."></textarea>
+            <button onclick="submitComment()">Add Comment</button>
+        </div>
+        <div class="panel-form" id="requestForm" style="display:none">
+            <select id="requestDay">
+                <option value="">General</option>
+                <option value="0">Day 0 - Travel</option>
+                <option value="1">Day 1 - Arrival</option>
+                <option value="2">Day 2 - Shimokitazawa</option>
+                <option value="3">Day 3 - Ginza</option>
+                <option value="4">Day 4 - Koenji</option>
+                <option value="5">Day 5 - To Niseko</option>
+                <option value="6">Day 6 - Ski 1</option>
+                <option value="7">Day 7 - Ski 2</option>
+                <option value="8">Day 8 - Ski 3</option>
+                <option value="9">Day 9 - Ski 4</option>
+                <option value="10">Day 10 - Back to Tokyo</option>
+                <option value="11">Day 11 - Nakameguro</option>
+                <option value="12">Day 12 - Asakusa</option>
+                <option value="13">Day 13 - Fly Home</option>
+            </select>
+            <input type="text" id="requestAuthor" placeholder="Your name" />
+            <input type="text" id="requestTitle" placeholder="Request title" />
+            <textarea id="requestContent" placeholder="What do you want to change/add?"></textarea>
+            <button onclick="submitRequest()">Submit Request</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleDay(header) {
+            const card = header.parentElement;
+            card.classList.toggle('open');
+        }
+
+        function scrollToSection(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                const navHeight = document.querySelector('.nav').offsetHeight;
+                const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+                window.scrollTo({
+                    top: elementPosition - navHeight - 16,
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        function toggleChecked(checkbox) {
+            const item = checkbox.parentElement;
+            item.classList.toggle('checked', checkbox.checked);
+            saveChecklist();
+        }
+
+        function saveChecklist() {
+            const checkboxes = document.querySelectorAll('.checklist input[type="checkbox"]');
+            const state = {};
+            checkboxes.forEach(cb => { state[cb.id] = cb.checked; });
+            localStorage.setItem('honeymoon-checklist', JSON.stringify(state));
+        }
+
+        function loadChecklist() {
+            const saved = localStorage.getItem('honeymoon-checklist');
+            if (saved) {
+                const state = JSON.parse(saved);
+                Object.keys(state).forEach(id => {
+                    const cb = document.getElementById(id);
+                    if (cb) {
+                        cb.checked = state[id];
+                        if (state[id]) cb.parentElement.classList.add('checked');
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadChecklist();
+            // Open first day by default
+            const firstCard = document.querySelector('.day-card');
+            if (firstCard) firstCard.classList.add('open');
+            // Load pending requests count
+            updatePendingBadge();
+        });
+
+        // === Panel Functions ===
+        let currentTab = 'comments';
+
+        function openPanel() {
+            document.getElementById('panel').classList.add('open');
+            document.getElementById('panelOverlay').classList.add('open');
+            document.body.style.overflow = 'hidden';
+            loadCurrentTab();
+        }
+
+        function closePanel() {
+            document.getElementById('panel').classList.remove('open');
+            document.getElementById('panelOverlay').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('commentForm').style.display = tab === 'comments' ? 'flex' : 'none';
+            document.getElementById('requestForm').style.display = tab === 'requests' ? 'flex' : 'none';
+            loadCurrentTab();
+        }
+
+        function loadCurrentTab() {
+            if (currentTab === 'comments') {
+                loadComments();
+            } else {
+                loadRequests();
+            }
+        }
+
+        async function loadComments() {
+            const content = document.getElementById('panelContent');
+            content.innerHTML = '<p style="text-align:center;color:#888">Loading...</p>';
+            try {
+                const res = await fetch('/api/comments');
+                const comments = await res.json();
+                renderComments(comments);
+            } catch (err) {
+                content.innerHTML = '<p style="text-align:center;color:#e74c3c">Failed to load comments</p>';
+            }
+        }
+
+        async function loadRequests() {
+            const content = document.getElementById('panelContent');
+            content.innerHTML = '<p style="text-align:center;color:#888">Loading...</p>';
+            try {
+                const res = await fetch('/api/requests');
+                const requests = await res.json();
+                renderRequests(requests);
+                updatePendingBadge();
+            } catch (err) {
+                content.innerHTML = '<p style="text-align:center;color:#e74c3c">Failed to load requests</p>';
+            }
+        }
+
+        function renderComments(comments) {
+            const content = document.getElementById('panelContent');
+            if (comments.length === 0) {
+                content.innerHTML = '<p style="text-align:center;color:#888;padding:2rem">No comments yet. Add one below!</p>';
+                return;
+            }
+            const dayNames = ['Travel', 'Arrival', 'Shimokitazawa', 'Ginza', 'Koenji', 'To Niseko',
+                              'Ski 1', 'Ski 2', 'Ski 3', 'Ski 4', 'Back to Tokyo', 'Nakameguro', 'Asakusa', 'Fly Home'];
+            content.innerHTML = comments.map(c => `
+                <div class="item-card">
+                    <div class="item-header">
+                        <span class="item-author">${escapeHtml(c.author)}</span>
+                        <span class="item-day">Day ${c.dayNumber} - ${dayNames[c.dayNumber] || 'General'}</span>
+                    </div>
+                    <div class="item-content">${escapeHtml(c.content)}</div>
+                    <div class="item-footer">
+                        <span class="item-date">${new Date(c.createdAt).toLocaleDateString()}</span>
+                        <button class="item-delete" onclick="deleteComment('${c.id}')">&times;</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderRequests(requests) {
+            const content = document.getElementById('panelContent');
+            if (requests.length === 0) {
+                content.innerHTML = '<p style="text-align:center;color:#888;padding:2rem">No requests yet. Submit one below!</p>';
+                return;
+            }
+            const dayNames = ['Travel', 'Arrival', 'Shimokitazawa', 'Ginza', 'Koenji', 'To Niseko',
+                              'Ski 1', 'Ski 2', 'Ski 3', 'Ski 4', 'Back to Tokyo', 'Nakameguro', 'Asakusa', 'Fly Home'];
+            content.innerHTML = requests.map(r => `
+                <div class="item-card ${r.status}">
+                    <div class="item-header">
+                        <span class="item-author">${escapeHtml(r.author)}</span>
+                        <span class="item-status status-${r.status}">${r.status}</span>
+                    </div>
+                    <div class="item-title">${escapeHtml(r.title)}</div>
+                    ${r.dayNumber !== null ? `<span class="item-day">Day ${r.dayNumber} - ${dayNames[r.dayNumber] || 'General'}</span>` : ''}
+                    <div class="item-content">${escapeHtml(r.content)}</div>
+                    <div class="item-footer">
+                        <span class="item-date">${new Date(r.createdAt).toLocaleDateString()}</span>
+                        <div class="item-actions">
+                            ${r.status === 'pending' ? `
+                                <button class="btn-approve" onclick="updateRequestStatus('${r.id}', 'approved')">✓</button>
+                                <button class="btn-reject" onclick="updateRequestStatus('${r.id}', 'rejected')">✗</button>
+                            ` : ''}
+                            <button class="item-delete" onclick="deleteRequest('${r.id}')">&times;</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function submitComment() {
+            const dayNumber = parseInt(document.getElementById('commentDay').value) || 0;
+            const author = document.getElementById('commentAuthor').value.trim();
+            const content = document.getElementById('commentContent').value.trim();
+
+            if (!author || !content) {
+                alert('Please fill in your name and comment');
+                return;
+            }
+
+            try {
+                await fetch('/api/comments', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ dayNumber, author, content })
+                });
+                document.getElementById('commentContent').value = '';
+                loadComments();
+            } catch (err) {
+                alert('Failed to add comment');
+            }
+        }
+
+        async function submitRequest() {
+            const dayValue = document.getElementById('requestDay').value;
+            const dayNumber = dayValue === '' ? null : parseInt(dayValue);
+            const author = document.getElementById('requestAuthor').value.trim();
+            const title = document.getElementById('requestTitle').value.trim();
+            const content = document.getElementById('requestContent').value.trim();
+
+            if (!author || !title || !content) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            try {
+                await fetch('/api/requests', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ dayNumber, author, title, content })
+                });
+                document.getElementById('requestTitle').value = '';
+                document.getElementById('requestContent').value = '';
+                loadRequests();
+            } catch (err) {
+                alert('Failed to submit request');
+            }
+        }
+
+        async function deleteComment(id) {
+            if (!confirm('Delete this comment?')) return;
+            try {
+                await fetch(`/api/comments/${id}`, { method: 'DELETE' });
+                loadComments();
+            } catch (err) {
+                alert('Failed to delete comment');
+            }
+        }
+
+        async function deleteRequest(id) {
+            if (!confirm('Delete this request?')) return;
+            try {
+                await fetch(`/api/requests/${id}`, { method: 'DELETE' });
+                loadRequests();
+            } catch (err) {
+                alert('Failed to delete request');
+            }
+        }
+
+        async function updateRequestStatus(id, status) {
+            try {
+                await fetch(`/api/requests/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                });
+                loadRequests();
+            } catch (err) {
+                alert('Failed to update request');
+            }
+        }
+
+        async function updatePendingBadge() {
+            try {
+                const res = await fetch('/api/requests?status=pending');
+                const pending = await res.json();
+                const badge = document.getElementById('pendingBadge');
+                if (pending.length > 0) {
+                    badge.textContent = pending.length;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            } catch (err) {
+                // Silently fail
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

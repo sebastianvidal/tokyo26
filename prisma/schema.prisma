@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  dayNumber Int      // Which day (0-13)
+  author    String   // "seb" or "wife" or name
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Request {
+  id        String   @id @default(cuid())
+  dayNumber Int?     // Optional - can be general
+  title     String
+  content   String
+  status    String   @default("pending") // pending, approved, rejected
+  author    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
