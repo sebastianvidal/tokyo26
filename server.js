@@ -493,30 +493,41 @@ const CLAUDE_TOOLS = [
   }
 ];
 
-const SYSTEM_PROMPT = `You are a helpful assistant for planning a Tokyo + Niseko honeymoon trip from January 19 to February 1, 2025.
+const SYSTEM_PROMPT = `You are a helpful assistant for planning a Tokyo + Niseko honeymoon trip (Jan 19 - Feb 1, 2025).
 
-Trip Overview:
-- Days 0-1: Travel from EWR to HND, arrive in Tokyo
-- Days 2-4: Tokyo exploration (Shimokitazawa, Ginza, Koenji neighborhoods)
-- Day 5: White Liner bus to Niseko (early departure for night skiing)
-- Days 6-9: Skiing at Niseko United (staying at Aya Niseko)
+WORKFLOW - Follow this for ANY itinerary changes:
+1. FIRST: Call get_itinerary to see the current schedule
+2. ANALYZE: Consider which day fits best based on:
+   - Location/neighborhood (group nearby places together)
+   - Available time slots
+   - What's already planned before/after
+3. PROPOSE: Suggest a specific day and time, explain your reasoning briefly
+4. WAIT: Get user confirmation before making any changes
+5. EXECUTE: Only then call add_schedule_item or other modification tools
+
+TRIP STRUCTURE:
+- Days 0-1: Travel EWR→HND, arrive Tokyo
+- Day 2: Shimokitazawa neighborhood
+- Day 3: Ginza / central Tokyo
+- Day 4: Koenji neighborhood
+- Day 5: Bus to Niseko
+- Days 6-9: Niseko skiing (Aya Niseko hotel)
 - Day 10: Return to Tokyo
-- Days 11-12: More Tokyo (Nakameguro, Asakusa)
-- Day 13: Fly home HND to EWR (6:25pm departure)
+- Day 11: Nakameguro neighborhood
+- Day 12: Asakusa neighborhood
+- Day 13: Fly home (6:25pm departure)
 
-Hotels:
-1. ANA Intercontinental Tokyo (first Tokyo stint)
-2. Aya Niseko (skiing days)
-3. TBD luxury hotel (second Tokyo stint)
+SCHEDULE ITEMS vs SPOTS:
+- Schedule items: Activities the user commits to (add with specific time)
+- Spots: Optional recommendations, "nearby if you have time"
+When user says "I want to go to X" → propose as schedule item, not spot
 
-You can help by:
-- Viewing and explaining the current itinerary
-- Adding, updating, or removing schedule items
-- Adding, updating, or removing recommended spots
-- Suggesting activities, restaurants, and experiences
-- Answering questions about Tokyo and Niseko
+MAPS URLS:
+When adding places, construct a Google Maps search URL:
+https://www.google.com/maps/search/[Place+Name]+[Area]+Japan
+Example: https://www.google.com/maps/search/Shibuya+109+Tokyo+Japan
 
-When making changes, always confirm what you've done. Be concise but helpful.`;
+Be concise. Never modify the itinerary without user confirmation first.`;
 
 // Execute tool calls against the database
 async function executeToolCall(toolName, toolInput) {
@@ -637,13 +648,38 @@ async function executeToolCall(toolName, toolInput) {
   }
 }
 
-// Chat endpoint
+// Tool display names for UI
+const TOOL_DISPLAY_NAMES = {
+  get_itinerary: 'Fetching itinerary',
+  update_day: 'Updating day',
+  add_schedule_item: 'Adding to schedule',
+  update_schedule_item: 'Updating schedule',
+  delete_schedule_item: 'Removing from schedule',
+  add_spot: 'Adding spot',
+  update_spot: 'Updating spot',
+  delete_spot: 'Removing spot'
+};
+
+// Helper to send SSE event
+function sendSSE(res, event, data) {
+  res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+}
+
+// Chat endpoint with SSE streaming
 app.post('/api/chat', async (req, res) => {
+  // Set SSE headers
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders();
+
   try {
     const { message, conversationHistory = [] } = req.body;
 
     if (!message) {
-      return res.status(400).json({ error: 'Message is required' });
+      sendSSE(res, 'error', { error: 'Message is required' });
+      res.end();
+      return;
     }
 
     // Build messages array
@@ -652,67 +688,126 @@ app.post('/api/chat', async (req, res) => {
       { role: 'user', content: message }
     ];
 
-    let response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 4096,
-      system: SYSTEM_PROMPT,
-      tools: CLAUDE_TOOLS,
-      messages
-    });
+    let modified = false;
+    let fullResponse = '';
+    let continueLoop = true;
 
-    const toolResults = [];
-
-    // Handle tool use loop
-    while (response.stop_reason === 'tool_use') {
-      const toolUseBlocks = response.content.filter(block => block.type === 'tool_use');
-      const toolResultsContent = [];
-
-      for (const toolUse of toolUseBlocks) {
-        const result = await executeToolCall(toolUse.name, toolUse.input);
-        toolResults.push({
-          tool: toolUse.name,
-          input: toolUse.input,
-          result
-        });
-        toolResultsContent.push({
-          type: 'tool_result',
-          tool_use_id: toolUse.id,
-          content: JSON.stringify(result)
-        });
-      }
-
-      // Continue conversation with tool results
-      messages.push({ role: 'assistant', content: response.content });
-      messages.push({ role: 'user', content: toolResultsContent });
-
-      response = await anthropic.messages.create({
+    while (continueLoop) {
+      // Use streaming API
+      const stream = anthropic.messages.stream({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4096,
         system: SYSTEM_PROMPT,
         tools: CLAUDE_TOOLS,
         messages
       });
+
+      let currentToolUse = null;
+      let toolUseBlocks = [];
+      let responseContent = [];
+
+      // Process stream events
+      for await (const event of stream) {
+        if (event.type === 'content_block_start') {
+          if (event.content_block.type === 'tool_use') {
+            currentToolUse = {
+              id: event.content_block.id,
+              name: event.content_block.name,
+              input: ''
+            };
+            sendSSE(res, 'tool_start', {
+              tool: event.content_block.name,
+              displayName: TOOL_DISPLAY_NAMES[event.content_block.name] || event.content_block.name
+            });
+          }
+        } else if (event.type === 'content_block_delta') {
+          if (event.delta.type === 'text_delta') {
+            fullResponse += event.delta.text;
+            sendSSE(res, 'text', { delta: event.delta.text });
+          } else if (event.delta.type === 'input_json_delta') {
+            if (currentToolUse) {
+              currentToolUse.input += event.delta.partial_json;
+            }
+          }
+        } else if (event.type === 'content_block_stop') {
+          if (currentToolUse) {
+            try {
+              currentToolUse.input = JSON.parse(currentToolUse.input || '{}');
+            } catch {
+              currentToolUse.input = {};
+            }
+            toolUseBlocks.push(currentToolUse);
+            responseContent.push({
+              type: 'tool_use',
+              id: currentToolUse.id,
+              name: currentToolUse.name,
+              input: currentToolUse.input
+            });
+            currentToolUse = null;
+          }
+        } else if (event.type === 'message_stop') {
+          // Message complete
+        }
+      }
+
+      // Get final message for stop reason
+      const finalMessage = await stream.finalMessage();
+
+      // Add any text blocks to response content
+      for (const block of finalMessage.content) {
+        if (block.type === 'text') {
+          responseContent.push(block);
+        }
+      }
+
+      // Check if we need to handle tool use
+      if (finalMessage.stop_reason === 'tool_use' && toolUseBlocks.length > 0) {
+        const toolResultsContent = [];
+
+        for (const toolUse of toolUseBlocks) {
+          const result = await executeToolCall(toolUse.name, toolUse.input);
+
+          // Check if this tool modifies the itinerary
+          if (['add_schedule_item', 'update_schedule_item', 'delete_schedule_item',
+               'add_spot', 'update_spot', 'delete_spot', 'update_day'].includes(toolUse.name)) {
+            modified = true;
+          }
+
+          // Send tool completion event
+          sendSSE(res, 'tool_done', {
+            tool: toolUse.name,
+            displayName: TOOL_DISPLAY_NAMES[toolUse.name] || toolUse.name,
+            success: !result.error
+          });
+
+          toolResultsContent.push({
+            type: 'tool_result',
+            tool_use_id: toolUse.id,
+            content: JSON.stringify(result)
+          });
+        }
+
+        // Continue conversation with tool results
+        messages.push({ role: 'assistant', content: responseContent });
+        messages.push({ role: 'user', content: toolResultsContent });
+      } else {
+        // No more tool use, we're done
+        continueLoop = false;
+        messages.push({ role: 'assistant', content: responseContent });
+      }
     }
 
-    // Extract text response
-    const textContent = response.content.find(block => block.type === 'text');
-    const textResponse = textContent ? textContent.text : '';
-
-    // Check if any modifications were made
-    const modified = toolResults.some(r =>
-      ['add_schedule_item', 'update_schedule_item', 'delete_schedule_item',
-       'add_spot', 'update_spot', 'delete_spot', 'update_day'].includes(r.tool)
-    );
-
-    res.json({
-      response: textResponse,
-      toolResults,
+    // Send completion event
+    sendSSE(res, 'done', {
       modified,
-      conversationHistory: messages.concat([{ role: 'assistant', content: response.content }])
+      conversationHistory: messages
     });
+
+    res.end();
   } catch (error) {
     console.error('Chat error:', error);
-    res.status(500).json({ error: error.message });
+    sendSSE(res, 'error', { error: error.message });
+    res.end();
   }
 });
 

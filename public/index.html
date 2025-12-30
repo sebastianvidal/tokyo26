@@ -924,6 +924,45 @@
             font-size: 2rem;
             margin-bottom: 0.5rem;
         }
+
+        /* Thinking steps (tool use display) */
+        .chat-thinking-steps {
+            padding: 0.5rem 0;
+        }
+
+        .chat-thinking-step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            padding: 0.35rem 0.75rem;
+            border-left: 2px solid var(--border);
+            margin: 0.25rem 0;
+            transition: all 0.2s;
+        }
+
+        .chat-thinking-step.in-progress {
+            color: var(--accent);
+            border-left-color: var(--accent);
+        }
+
+        .chat-thinking-step.done {
+            color: #4a9;
+            border-left-color: #4a9;
+        }
+
+        .chat-thinking-step .icon {
+            font-size: 0.9rem;
+        }
+
+        .chat-streaming-text {
+            padding: 0.75rem 1rem;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            margin-top: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -1757,8 +1796,25 @@
 
             // Show loading state
             isChatLoading = true;
-            showChatThinking();
             document.getElementById('chatSendBtn').disabled = true;
+
+            // Initialize streaming UI
+            const container = document.getElementById('chatMessages');
+            const streamingHtml = `
+                <div id="streamingResponse">
+                    <div class="chat-thinking-steps" id="thinkingSteps"></div>
+                    <div class="chat-streaming-text" id="streamingText" style="display: none;"></div>
+                </div>
+            `;
+            container.innerHTML = chatHistory.map(msg => `
+                <div class="chat-message ${msg.role}">
+                    ${formatChatMessage(msg.content)}
+                </div>
+            `).join('') + streamingHtml;
+            container.scrollTop = container.scrollHeight;
+
+            let fullText = '';
+            let thinkingSteps = [];
 
             try {
                 const res = await fetch('/api/chat', {
@@ -1766,22 +1822,48 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         message,
-                        conversationHistory: chatHistory.slice(0, -1) // Send history without the current message
+                        conversationHistory: chatHistory.slice(0, -1)
                     })
                 });
 
-                const data = await res.json();
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
 
-                if (!res.ok) {
-                    throw new Error(data.error || 'Failed to get response');
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+
+                    // Parse SSE events from buffer
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop(); // Keep incomplete line in buffer
+
+                    let eventType = null;
+                    for (const line of lines) {
+                        if (line.startsWith('event: ')) {
+                            eventType = line.slice(7);
+                        } else if (line.startsWith('data: ') && eventType) {
+                            const data = JSON.parse(line.slice(6));
+                            handleStreamEvent(eventType, data, thinkingSteps);
+                            eventType = null;
+                        }
+                    }
                 }
 
-                // Add assistant response to history
-                chatHistory.push({ role: 'assistant', content: data.response });
-
-                // If itinerary was modified, reload it
-                if (data.modified) {
-                    await loadItinerary();
+                // Handle any remaining data in buffer
+                if (buffer.trim()) {
+                    const lines = buffer.split('\n');
+                    let eventType = null;
+                    for (const line of lines) {
+                        if (line.startsWith('event: ')) {
+                            eventType = line.slice(7);
+                        } else if (line.startsWith('data: ') && eventType) {
+                            const data = JSON.parse(line.slice(6));
+                            handleStreamEvent(eventType, data, thinkingSteps);
+                        }
+                    }
                 }
 
             } catch (err) {
@@ -1790,10 +1872,86 @@
                     role: 'assistant',
                     content: 'Sorry, I encountered an error. Please try again.'
                 });
+                renderChatMessages();
             } finally {
                 isChatLoading = false;
                 document.getElementById('chatSendBtn').disabled = false;
-                renderChatMessages();
+            }
+        }
+
+        function handleStreamEvent(eventType, data, thinkingSteps) {
+            const stepsContainer = document.getElementById('thinkingSteps');
+            const textContainer = document.getElementById('streamingText');
+            const messagesContainer = document.getElementById('chatMessages');
+
+            switch (eventType) {
+                case 'tool_start':
+                    thinkingSteps.push({ tool: data.tool, displayName: data.displayName, done: false });
+                    stepsContainer.innerHTML = thinkingSteps.map((step, i) => `
+                        <div class="chat-thinking-step ${step.done ? 'done' : 'in-progress'}">
+                            <span class="icon">${step.done ? '✓' : '◌'}</span>
+                            <span>${step.displayName}${step.done ? '' : '...'}</span>
+                        </div>
+                    `).join('');
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    break;
+
+                case 'tool_done':
+                    const stepIndex = thinkingSteps.findIndex(s => s.tool === data.tool && !s.done);
+                    if (stepIndex !== -1) {
+                        thinkingSteps[stepIndex].done = true;
+                        stepsContainer.innerHTML = thinkingSteps.map((step, i) => `
+                            <div class="chat-thinking-step ${step.done ? 'done' : 'in-progress'}">
+                                <span class="icon">${step.done ? '✓' : '◌'}</span>
+                                <span>${step.displayName}${step.done ? '' : '...'}</span>
+                            </div>
+                        `).join('');
+                    }
+                    break;
+
+                case 'text':
+                    textContainer.style.display = 'block';
+                    textContainer.innerHTML += escapeHtml(data.delta).replace(/\n/g, '<br>');
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    break;
+
+                case 'done':
+                    // Update conversation history from server
+                    chatHistory = data.conversationHistory.map(msg => {
+                        if (msg.role === 'assistant') {
+                            // Extract text content from assistant messages
+                            if (Array.isArray(msg.content)) {
+                                const textBlock = msg.content.find(b => b.type === 'text');
+                                return { role: 'assistant', content: textBlock ? textBlock.text : '' };
+                            }
+                            return msg;
+                        } else if (msg.role === 'user') {
+                            // Extract user message text
+                            if (Array.isArray(msg.content)) {
+                                // Tool results - skip these in display history
+                                return null;
+                            }
+                            return msg;
+                        }
+                        return msg;
+                    }).filter(msg => msg && msg.content);
+
+                    // If itinerary was modified, reload it
+                    if (data.modified) {
+                        loadItinerary();
+                    }
+
+                    // Re-render with final history
+                    renderChatMessages();
+                    break;
+
+                case 'error':
+                    chatHistory.push({
+                        role: 'assistant',
+                        content: `Error: ${data.error}`
+                    });
+                    renderChatMessages();
+                    break;
             }
         }
 
@@ -1829,29 +1987,6 @@
             return formatted;
         }
 
-        function showChatThinking() {
-            const container = document.getElementById('chatMessages');
-            const thinkingHtml = `
-                <div class="chat-thinking" id="chatThinking">
-                    <span>Thinking</span>
-                    <div class="chat-thinking-dots">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
-                </div>
-            `;
-
-            // Render existing messages plus thinking indicator
-            container.innerHTML = chatHistory.map(msg => `
-                <div class="chat-message ${msg.role}">
-                    ${formatChatMessage(msg.content)}
-                </div>
-            `).join('') + thinkingHtml;
-
-            // Scroll to bottom
-            container.scrollTop = container.scrollHeight;
-        }
     </script>
 </body>
 </html>
