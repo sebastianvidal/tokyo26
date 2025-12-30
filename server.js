@@ -891,6 +891,47 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
+// Auto-seed Trip data if none exists
+async function ensureTripData() {
+  try {
+    const existingTrip = await prisma.trip.findFirst();
+    if (!existingTrip) {
+      console.log('No trip found, seeding default data...');
+      const trip = await prisma.trip.create({
+        data: {
+          id: 'tokyo-niseko-2025',
+          title: 'Tokyo + Niseko 2025',
+          subtitle: 'January 19 - February 1',
+          tags: ['6 Days Tokyo', '4 Days Skiing'],
+          highlights: [
+            { label: 'Ski Days', value: '4 + night session' },
+            { label: 'Michelin', value: '2 dinners' },
+            { label: 'Neighborhoods', value: '8 explored' }
+          ]
+        }
+      });
+
+      // Create flights
+      const flightsData = [
+        { label: 'Outbound', route: 'EWR → HND', date: 'Jan 19', sortOrder: 0 },
+        { label: 'To Niseko', route: 'HND → CTS', date: 'Jan 24', sortOrder: 1 },
+        { label: 'Back', route: 'CTS → HND', date: 'Jan 29', sortOrder: 2 },
+        { label: 'Home', route: 'HND → EWR', date: 'Feb 1', sortOrder: 3 }
+      ];
+
+      for (const flight of flightsData) {
+        await prisma.flight.create({
+          data: { tripId: trip.id, ...flight }
+        });
+      }
+      console.log('Trip data seeded successfully!');
+    }
+  } catch (err) {
+    console.error('Error seeding trip data:', err);
+  }
+}
+
+app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
+  await ensureTripData();
 });
