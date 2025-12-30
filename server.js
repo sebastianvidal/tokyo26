@@ -719,19 +719,13 @@ app.post('/api/chat', async (req, res) => {
         messages
       });
 
-      let currentToolUse = null;
-      let toolUseBlocks = [];
-      let responseContent = [];
+      let currentToolName = null;
 
-      // Process stream events
+      // Process stream events (for UI updates only - API uses finalMessage)
       for await (const event of stream) {
         if (event.type === 'content_block_start') {
           if (event.content_block.type === 'tool_use') {
-            currentToolUse = {
-              id: event.content_block.id,
-              name: event.content_block.name,
-              input: ''
-            };
+            currentToolName = event.content_block.name;
             sendSSE(res, 'tool_start', {
               tool: event.content_block.name,
               displayName: TOOL_DISPLAY_NAMES[event.content_block.name] || event.content_block.name
@@ -741,44 +735,19 @@ app.post('/api/chat', async (req, res) => {
           if (event.delta.type === 'text_delta') {
             fullResponse += event.delta.text;
             sendSSE(res, 'text', { delta: event.delta.text });
-          } else if (event.delta.type === 'input_json_delta') {
-            if (currentToolUse) {
-              currentToolUse.input += event.delta.partial_json;
-            }
           }
         } else if (event.type === 'content_block_stop') {
-          if (currentToolUse) {
-            try {
-              currentToolUse.input = JSON.parse(currentToolUse.input || '{}');
-            } catch {
-              currentToolUse.input = {};
-            }
-            toolUseBlocks.push(currentToolUse);
-            responseContent.push({
-              type: 'tool_use',
-              id: currentToolUse.id,
-              name: currentToolUse.name,
-              input: currentToolUse.input
-            });
-            currentToolUse = null;
-          }
-        } else if (event.type === 'message_stop') {
-          // Message complete
+          currentToolName = null;
         }
       }
 
       // Get final message for stop reason
       const finalMessage = await stream.finalMessage();
 
-      // Add any text blocks to response content
-      for (const block of finalMessage.content) {
-        if (block.type === 'text') {
-          responseContent.push(block);
-        }
-      }
-
       // Check if we need to handle tool use
-      if (finalMessage.stop_reason === 'tool_use' && toolUseBlocks.length > 0) {
+      if (finalMessage.stop_reason === 'tool_use') {
+        // Extract tool_use blocks from finalMessage.content (authoritative source)
+        const toolUseBlocks = finalMessage.content.filter(b => b.type === 'tool_use');
         const toolResultsContent = [];
 
         for (const toolUse of toolUseBlocks) {
@@ -804,13 +773,13 @@ app.post('/api/chat', async (req, res) => {
           });
         }
 
-        // Continue conversation with tool results
-        messages.push({ role: 'assistant', content: responseContent });
+        // Use finalMessage.content directly (authoritative source, not our reconstructed version)
+        messages.push({ role: 'assistant', content: finalMessage.content });
         messages.push({ role: 'user', content: toolResultsContent });
       } else {
         // No more tool use, we're done
         continueLoop = false;
-        messages.push({ role: 'assistant', content: responseContent });
+        messages.push({ role: 'assistant', content: finalMessage.content });
       }
     }
 
