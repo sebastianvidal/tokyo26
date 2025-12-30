@@ -243,38 +243,25 @@
 
         /* Category-highlighted schedule items */
         .schedule-item.cultural {
-            background: var(--cultural-soft);
             border-left: 3px solid var(--cultural);
-            border-radius: 0.5rem;
-            padding: 0.75rem 1rem;
-            margin: 0.375rem 0;
-            border-bottom: none;
+            padding-left: calc(1rem - 3px);
         }
-        .schedule-item.cultural .schedule-desc { color: var(--text); }
-        .schedule-item.cultural .highlight { color: var(--cultural); }
+        .schedule-item.cultural .highlight,
+        .schedule-item.cultural a { color: var(--cultural); }
 
         .schedule-item.shopping {
-            background: var(--shopping-soft);
             border-left: 3px solid var(--shopping);
-            border-radius: 0.5rem;
-            padding: 0.75rem 1rem;
-            margin: 0.375rem 0;
-            border-bottom: none;
+            padding-left: calc(1rem - 3px);
         }
-        .schedule-item.shopping .schedule-desc { color: var(--text); }
         .schedule-item.shopping .highlight,
         .schedule-item.shopping a { color: var(--shopping); }
 
         .schedule-item.food {
-            background: var(--food-soft);
             border-left: 3px solid var(--food);
-            border-radius: 0.5rem;
-            padding: 0.75rem 1rem;
-            margin: 0.375rem 0;
-            border-bottom: none;
+            padding-left: calc(1rem - 3px);
         }
-        .schedule-item.food .schedule-desc { color: var(--text); }
-        .schedule-item.food .highlight { color: var(--food); }
+        .schedule-item.food .highlight,
+        .schedule-item.food a { color: var(--food); }
 
         /* Links */
         a { color: var(--accent); text-decoration: none; }
@@ -318,6 +305,9 @@
         .option-card p { color: var(--text-muted); font-size: 0.7rem; margin-bottom: 0.5rem; }
         .option-card.chill { border-left: 3px solid #22d3ee; }
         .option-card.party { border-left: 3px solid #f472b6; }
+        .option-card.cultural { border-left: 3px solid var(--cultural); }
+        .option-card.shopping { border-left: 3px solid var(--shopping); }
+        .option-card.food { border-left: 3px solid var(--food); }
         .option-card .link-btn { margin-top: 0; font-size: 0.65rem; padding: 0.25rem 0.5rem; }
 
         /* Map section */
@@ -638,7 +628,7 @@
             <button class="nav-btn" onclick="scrollToSection('day-9')">Ski 4</button>
             <button class="nav-btn" onclick="scrollToSection('day-10')">→ Tokyo</button>
             <button class="nav-btn" onclick="scrollToSection('day-11')">Nakameguro</button>
-            <button class="nav-btn" onclick="scrollToSection('day-12')">Asakusa</button>
+            <button class="nav-btn" onclick="scrollToSection('day-12')">Ueno</button>
             <button class="nav-btn" onclick="scrollToSection('day-13')">Home</button>
             <button class="nav-btn" onclick="scrollToSection('checklist')">Checklist</button>
         </div>
@@ -768,7 +758,7 @@
                         </div>
                         <div class="schedule-item shopping">
                             <div class="schedule-time">11:30am</div>
-                            <div class="schedule-desc"><span class="highlight">Vintage:</span> <a href="https://www.google.com/maps/search/Flamingo+Shimokitazawa/" target="_blank">Flamingo</a>, <a href="https://www.google.com/maps/search/New+York+Joe+Exchange+Shimokitazawa/" target="_blank">New York Joe Exchange</a>, <a href="https://www.google.com/maps/search/Haight+Ashbury+Shimokitazawa/" target="_blank">Haight & Ashbury</a></div>
+                            <div class="schedule-desc"><span class="highlight">Vintage:</span> <a href="https://www.google.com/maps/place/Flamingo+Shimokitazawa" target="_blank">Flamingo</a>, <a href="https://www.google.com/maps/place/NEW+YORK+JOE+EXCHANGE+Shimokitazawa" target="_blank">New York Joe Exchange</a>, <a href="https://www.google.com/maps/place/HAIGHT+%26+ASHBURY+shimokitazawa" target="_blank">Haight & Ashbury</a></div>
                         </div>
                         <div class="schedule-item food">
                             <div class="schedule-time">1:00pm</div>
@@ -784,7 +774,31 @@
                         </div>
                         <div class="schedule-item food">
                             <div class="schedule-time">9:30pm</div>
-                            <div class="schedule-desc"><span class="highlight">Drinks:</span> <a href="https://www.google.com/maps/search/Bar+Piano+Shimokitazawa/" target="_blank">Bar Piano</a> (jazz) or <a href="https://www.google.com/maps/place/The+SG+Club/" target="_blank">SG Club</a> (Shibuya)</div>
+                            <div class="schedule-desc"><span class="highlight">Drinks:</span> <a href="https://www.google.com/maps/place/Bar+Piano+Shimokitazawa" target="_blank">Bar Piano</a> (jazz) or <a href="https://www.google.com/maps/place/The+SG+Club" target="_blank">SG Club</a> (Shibuya)</div>
+                        </div>
+
+                        <p class="section-title">Spots</p>
+                        <div class="options-grid">
+                            <div class="option-card cultural">
+                                <h4>Gotoku-ji Temple</h4>
+                                <p>Hundreds of lucky cats (maneki-neko)</p>
+                                <a href="https://www.google.com/maps/place/Gotokuji+Temple" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card shopping">
+                                <h4>Flamingo</h4>
+                                <p>Best vintage in Shimokita</p>
+                                <a href="https://www.google.com/maps/place/Flamingo+Shimokitazawa" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card shopping">
+                                <h4>New York Joe Exchange</h4>
+                                <p>Curated American vintage</p>
+                                <a href="https://www.google.com/maps/place/NEW+YORK+JOE+EXCHANGE+Shimokitazawa" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card food">
+                                <h4>Bar Piano</h4>
+                                <p>Intimate jazz bar</p>
+                                <a href="https://www.google.com/maps/place/Bar+Piano+Shimokitazawa" target="_blank" class="link-btn">Map</a>
+                            </div>
                         </div>
 
                         <a href="https://www.google.com/maps/dir/ANA+InterContinental+Tokyo/Gotokuji+Temple/Shimokitazawa+Station" target="_blank" class="link-btn">Day Route</a>
@@ -840,6 +854,30 @@
                             <div class="schedule-desc"><span class="highlight">Nightcap:</span> <a href="https://www.google.com/maps/place/Star+Bar+Ginza/" target="_blank">Star Bar Ginza</a> or hotel</div>
                         </div>
 
+                        <p class="section-title">Spots</p>
+                        <div class="options-grid">
+                            <div class="option-card cultural">
+                                <h4>TeamLab Planets</h4>
+                                <p>Immersive digital art museum</p>
+                                <a href="https://www.google.com/maps/place/teamLab+Planets+TOKYO" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card shopping">
+                                <h4>Dover Street Market</h4>
+                                <p>Comme des Garçons concept store</p>
+                                <a href="https://www.google.com/maps/place/Dover+Street+Market+Ginza" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card shopping">
+                                <h4>Itoya</h4>
+                                <p>12-floor stationery paradise</p>
+                                <a href="https://www.google.com/maps/place/Itoya+Ginza" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card food">
+                                <h4>Star Bar Ginza</h4>
+                                <p>Legendary cocktail bar</p>
+                                <a href="https://www.google.com/maps/place/Star+Bar+Ginza" target="_blank" class="link-btn">Map</a>
+                            </div>
+                        </div>
+
                         <a href="https://www.teamlab.art/e/planets/" target="_blank" class="link-btn">TeamLab Tickets</a>
                         <a href="https://www.google.com/maps/dir/ANA+InterContinental+Tokyo/teamLab+Planets+TOKYO/Ginza+Station" target="_blank" class="link-btn">Day Route</a>
                     </div>
@@ -871,15 +909,19 @@
                         </div>
                         <div class="schedule-item shopping">
                             <div class="schedule-time">11:00am</div>
-                            <div class="schedule-desc">Quick <a href="https://www.google.com/maps/place/Harajuku/" target="_blank">Harajuku</a>/<a href="https://www.google.com/maps/place/Omotesando/" target="_blank">Omotesando</a> hits</div>
+                            <div class="schedule-desc"><span class="highlight">Harajuku:</span> <a href="https://www.google.com/maps/place/Takeshita+Street" target="_blank">Takeshita Street</a>, <a href="https://www.google.com/maps/place/Laforet+Harajuku" target="_blank">Laforet</a>, <a href="https://www.google.com/maps/place/Cat+Street,+Shibuya" target="_blank">Cat Street</a></div>
                         </div>
                         <div class="schedule-item food">
-                            <div class="schedule-time">12:30pm</div>
+                            <div class="schedule-time">1:00pm</div>
                             <div class="schedule-desc"><span class="highlight">Lunch:</span> Harajuku area</div>
                         </div>
                         <div class="schedule-item shopping">
                             <div class="schedule-time">2:00pm</div>
-                            <div class="schedule-desc"><span class="highlight"><a href="https://www.google.com/maps/place/Koenji/" target="_blank">Koenji</a> vintage:</span> <a href="https://www.google.com/maps/search/Slat+Koenji/" target="_blank">Slat</a> (Levi's 501s), <a href="https://www.google.com/maps/search/Whistler+Koenji/" target="_blank">Whistler</a>, side streets</div>
+                            <div class="schedule-desc"><span class="highlight">Omotesando:</span> <a href="https://www.google.com/maps/place/Omotesando+Hills" target="_blank">Omotesando Hills</a>, <a href="https://www.google.com/maps/place/GYRE" target="_blank">GYRE</a>, flagship boutiques</div>
+                        </div>
+                        <div class="schedule-item shopping">
+                            <div class="schedule-time">4:00pm</div>
+                            <div class="schedule-desc"><span class="highlight"><a href="https://www.google.com/maps/place/Koenji" target="_blank">Koenji</a> vintage:</span> Slat (Levi's 501s), Whistler, side streets</div>
                         </div>
                         <div class="schedule-item food">
                             <div class="schedule-time">7:00pm</div>
@@ -887,11 +929,35 @@
                         </div>
                         <div class="schedule-item food">
                             <div class="schedule-time">9:00pm</div>
-                            <div class="schedule-desc"><span class="highlight"><a href="https://www.google.com/maps/place/Golden+Gai/" target="_blank">Golden Gai</a></span> — Bar hop (<a href="https://www.google.com/maps/search/Albatross+Golden+Gai/" target="_blank">Albatross</a>, <a href="https://www.google.com/maps/search/The+Open+Book+Golden+Gai/" target="_blank">The Open Book</a>)</div>
+                            <div class="schedule-desc"><span class="highlight"><a href="https://www.google.com/maps/place/Shinjuku+Golden+Gai" target="_blank">Golden Gai</a></span> — Bar hop (Albatross, The Open Book)</div>
                         </div>
                         <div class="schedule-item food">
                             <div class="schedule-time">10:30pm</div>
                             <div class="schedule-desc"><a href="https://www.google.com/maps/place/DUG/" target="_blank" class="highlight">Dug Jazz Cafe</a> — Legendary jazz bar</div>
+                        </div>
+
+                        <p class="section-title">Spots</p>
+                        <div class="options-grid">
+                            <div class="option-card cultural">
+                                <h4>Meiji Jingu</h4>
+                                <p>Peaceful shrine in a forest</p>
+                                <a href="https://www.google.com/maps/place/Meiji+Jingu" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card shopping">
+                                <h4>Omotesando Hills</h4>
+                                <p>Ando-designed luxury mall</p>
+                                <a href="https://www.google.com/maps/place/Omotesando+Hills" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card shopping">
+                                <h4>Laforet Harajuku</h4>
+                                <p>Japanese street fashion hub</p>
+                                <a href="https://www.google.com/maps/place/Laforet+Harajuku" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card food">
+                                <h4>Golden Gai</h4>
+                                <p>200+ tiny bars in alleyways</p>
+                                <a href="https://www.google.com/maps/place/Golden+Gai" target="_blank" class="link-btn">Map</a>
+                            </div>
                         </div>
 
                         <a href="https://www.google.com/maps/dir/ANA+InterContinental+Tokyo/Meiji+Jingu/Harajuku+Station/Koenji+Station/Shinjuku+Station" target="_blank" class="link-btn">Day Route</a>
@@ -1259,6 +1325,30 @@
                             <div class="schedule-desc"><a href="https://www.google.com/maps/place/The+SG+Club/" target="_blank" class="highlight">SG Club</a> if you missed it earlier</div>
                         </div>
 
+                        <p class="section-title">Spots</p>
+                        <div class="options-grid">
+                            <div class="option-card cultural">
+                                <h4>Nezu Shrine</h4>
+                                <p>Beautiful torii gates, quiet</p>
+                                <a href="https://www.google.com/maps/place/Nezu+Shrine" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card shopping">
+                                <h4>Daikanyama T-Site</h4>
+                                <p>Beautiful bookstore complex</p>
+                                <a href="https://www.google.com/maps/place/Daikanyama+T-Site" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card shopping">
+                                <h4>Okura</h4>
+                                <p>Indigo-dyed goods</p>
+                                <a href="https://www.google.com/maps/place/Okura+Nakameguro" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card food">
+                                <h4>SG Club</h4>
+                                <p>World-class cocktails</p>
+                                <a href="https://www.google.com/maps/place/The+SG+Club" target="_blank" class="link-btn">Map</a>
+                            </div>
+                        </div>
+
                         <a href="https://www.google.com/maps/dir/Nezu+Shrine/Nakameguro+Station/Daikanyama+Station" target="_blank" class="link-btn">Day Route</a>
                     </div>
                 </div>
@@ -1272,7 +1362,7 @@
                     <div class="day-number tokyo">12</div>
                     <div class="day-info">
                         <div class="day-date">Friday, January 31</div>
-                        <div class="day-title">Asakusa + East Side + Michelin #2</div>
+                        <div class="day-title">Asakusa + Ueno + Michelin #2</div>
                     </div>
                     <div class="day-toggle">▼</div>
                 </div>
@@ -1289,15 +1379,19 @@
                         </div>
                         <div class="schedule-item shopping">
                             <div class="schedule-time">11:30am</div>
-                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/Kappabashi+Kitchen+Town/" target="_blank">Kappabashi</a> — Kitchen street (optional)</div>
+                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/Kappabashi+Dogugai+Street" target="_blank">Kappabashi</a> — Kitchen street (optional)</div>
                         </div>
                         <div class="schedule-item food">
                             <div class="schedule-time">12:30pm</div>
-                            <div class="schedule-desc"><span class="highlight">Lunch:</span> <a href="https://www.google.com/maps/place/Asakusa/" target="_blank">Asakusa</a> (tempura, soba, unagi)</div>
+                            <div class="schedule-desc"><span class="highlight">Lunch:</span> <a href="https://www.google.com/maps/place/Asakusa" target="_blank">Asakusa</a> (tempura, soba, unagi)</div>
+                        </div>
+                        <div class="schedule-item shopping">
+                            <div class="schedule-time">2:00pm</div>
+                            <div class="schedule-desc"><span class="highlight">Ueno:</span> <a href="https://www.google.com/maps/place/Ameyoko+Shopping+Street" target="_blank">Ameyoko</a> market street, street food, vintage finds</div>
                         </div>
                         <div class="schedule-item cultural">
-                            <div class="schedule-time">2:30pm</div>
-                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/Yanaka+Ginza/" target="_blank" class="highlight">Yanaka Ginza</a> — "Old Tokyo" retro streets</div>
+                            <div class="schedule-time">3:30pm</div>
+                            <div class="schedule-desc"><a href="https://www.google.com/maps/place/Yanaka+Ginza+Shopping+Street" target="_blank" class="highlight">Yanaka Ginza</a> — "Old Tokyo" retro streets</div>
                         </div>
                         <div class="schedule-item">
                             <div class="schedule-time">5:00pm</div>
@@ -1312,7 +1406,31 @@
                             <div class="schedule-desc"><span class="highlight">Final drinks:</span> <a href="https://www.google.com/maps/place/DUG/" target="_blank">Dug Jazz</a> or hotel bar</div>
                         </div>
 
-                        <a href="https://www.google.com/maps/dir/Senso-ji+Temple/Kappabashi+Kitchen+Town/Yanaka+Ginza" target="_blank" class="link-btn">Day Route</a>
+                        <p class="section-title">Spots</p>
+                        <div class="options-grid">
+                            <div class="option-card cultural">
+                                <h4>Senso-ji Temple</h4>
+                                <p>Tokyo's oldest temple</p>
+                                <a href="https://www.google.com/maps/place/Senso-ji+Temple" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card shopping">
+                                <h4>Ameyoko</h4>
+                                <p>Bustling market street</p>
+                                <a href="https://www.google.com/maps/place/Ameyoko+Shopping+Street" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card shopping">
+                                <h4>Kappabashi</h4>
+                                <p>Kitchen supply street</p>
+                                <a href="https://www.google.com/maps/place/Kappabashi+Dogugai+Street" target="_blank" class="link-btn">Map</a>
+                            </div>
+                            <div class="option-card cultural">
+                                <h4>Yanaka Ginza</h4>
+                                <p>Retro old-Tokyo vibe</p>
+                                <a href="https://www.google.com/maps/place/Yanaka+Ginza+Shopping+Street" target="_blank" class="link-btn">Map</a>
+                            </div>
+                        </div>
+
+                        <a href="https://www.google.com/maps/dir/Senso-ji+Temple/Kappabashi+Dogugai+Street/Ameyoko+Shopping+Street/Yanaka+Ginza+Shopping+Street" target="_blank" class="link-btn">Day Route</a>
                     </div>
                 </div>
             </div>
