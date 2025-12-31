@@ -1543,7 +1543,8 @@
 
         function renderDay(day) {
             const dateObj = new Date(day.date);
-            const dateStr = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+            // Use UTC to avoid timezone offset issues (dates stored as midnight UTC)
+            const dateStr = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' });
 
             const scheduleHtml = day.scheduleItems.length > 0 ? `
                 <p class="section-title">Schedule</p>
