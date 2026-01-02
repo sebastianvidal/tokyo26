@@ -7,9 +7,9 @@ async function main() {
     where: { id: 'tokyo-niseko-2025' },
     update: {},
     create: {
-      id: 'tokyo-niseko-2025',
-      title: 'Tokyo + Niseko 2025',
-      subtitle: 'January 19 - February 1',
+      id: 'tokyo-niseko-2026',
+      title: 'Tokyo + Niseko 2026',
+      subtitle: 'January 18 - February 1',
       tags: ['6 Days Tokyo', '4 Days Skiing'],
       highlights: [
         { label: 'Ski Days', value: '4 + night session' },

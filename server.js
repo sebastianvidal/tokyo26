@@ -535,10 +535,38 @@ const CLAUDE_TOOLS = [
       },
       required: ['id']
     }
+  },
+  {
+    name: 'resolve_maps_url',
+    description: 'Resolve a shortened Google Maps URL (maps.app.goo.gl) to get the full URL and extract the place name. Use this when user provides a short maps link.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        url: {
+          type: 'string',
+          description: 'The shortened Google Maps URL (e.g., https://maps.app.goo.gl/abc123)'
+        }
+      },
+      required: ['url']
+    }
+  },
+  {
+    name: 'search_place',
+    description: 'Search for a place by name using Google Maps Places API. Returns the official name, address, and a Maps URL. Use this when adding spots or schedule items that involve a location.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          description: 'Place name and area (e.g., "Ichiran Shibuya Tokyo")'
+        }
+      },
+      required: ['query']
+    }
   }
 ];
 
-const SYSTEM_PROMPT = `You are a helpful assistant for planning a Tokyo + Niseko honeymoon trip (Jan 19 - Feb 1, 2025).
+const SYSTEM_PROMPT = `You are a helpful assistant for planning a Tokyo + Niseko honeymoon trip (Jan 18 - Feb 1, 2026).
 
 WORKFLOW - Follow this for ANY itinerary changes:
 1. FIRST: Call get_itinerary to see the current schedule
@@ -567,10 +595,16 @@ SCHEDULE ITEMS vs SPOTS:
 - Spots: Optional recommendations, "nearby if you have time"
 When user says "I want to go to X" → propose as schedule item, not spot
 
-MAPS URLS:
-When adding places, construct a Google Maps search URL:
-https://www.google.com/maps/search/[Place+Name]+[Area]+Japan
-Example: https://www.google.com/maps/search/Shibuya+109+Tokyo+Japan
+LINKS IN SCHEDULE DESCRIPTIONS:
+ALWAYS include HTML links in schedule item descriptions. Format:
+- For places: <a href="[maps_url]" target="_blank">[Place Name]</a>
+- Example: Lunch at <a href="https://www.google.com/maps/place/?q=place_id:xxx" target="_blank">Ichiran Shibuya</a>
+
+ADDING LOCATIONS:
+- Use search_place tool to look up any place by name (e.g., "Ichiran Shibuya Tokyo")
+- This returns the official name, address, and a Maps URL
+- Use the returned mapUrl when adding spots or in schedule item descriptions
+- If user pastes a maps.app.goo.gl short link, use resolve_maps_url first to get details
 
 Be concise. Never modify the itinerary without user confirmation first.`;
 
@@ -702,6 +736,73 @@ async function executeToolCall(toolName, toolInput) {
       return { success: true };
     }
 
+    case 'resolve_maps_url': {
+      try {
+        // Follow redirects to get the final URL
+        const response = await fetch(toolInput.url, { redirect: 'follow' });
+        const finalUrl = response.url;
+
+        // Try to extract place name from the URL
+        let placeName = null;
+
+        // Pattern 1: /place/Place+Name/
+        const placeMatch = finalUrl.match(/\/place\/([^/]+)/);
+        if (placeMatch) {
+          placeName = decodeURIComponent(placeMatch[1].replace(/\+/g, ' '));
+        }
+
+        // Pattern 2: ?q=Place+Name or search query
+        if (!placeName) {
+          const urlObj = new URL(finalUrl);
+          const query = urlObj.searchParams.get('q') || urlObj.searchParams.get('query');
+          if (query) {
+            placeName = decodeURIComponent(query.replace(/\+/g, ' '));
+          }
+        }
+
+        // Pattern 3: /search/Place+Name
+        if (!placeName) {
+          const searchMatch = finalUrl.match(/\/search\/([^/?]+)/);
+          if (searchMatch) {
+            placeName = decodeURIComponent(searchMatch[1].replace(/\+/g, ' '));
+          }
+        }
+
+        return {
+          originalUrl: toolInput.url,
+          resolvedUrl: finalUrl,
+          placeName: placeName || 'Unknown place'
+        };
+      } catch (err) {
+        return { error: `Failed to resolve URL: ${err.message}` };
+      }
+    }
+
+    case 'search_place': {
+      try {
+        const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+        if (!apiKey) {
+          return { error: 'Google Maps API key not configured' };
+        }
+
+        const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(toolInput.query)}&key=${apiKey}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.results?.[0]) {
+          const place = data.results[0];
+          return {
+            name: place.name,
+            address: place.formatted_address,
+            mapUrl: `https://www.google.com/maps/place/?q=place_id:${place.place_id}`
+          };
+        }
+        return { error: 'Place not found' };
+      } catch (err) {
+        return { error: `Failed to search place: ${err.message}` };
+      }
+    }
+
     default:
       return { error: `Unknown tool: ${toolName}` };
   }
@@ -716,7 +817,9 @@ const TOOL_DISPLAY_NAMES = {
   delete_schedule_item: 'Removing from schedule',
   add_spot: 'Adding spot',
   update_spot: 'Updating spot',
-  delete_spot: 'Removing spot'
+  delete_spot: 'Removing spot',
+  resolve_maps_url: 'Resolving Maps link',
+  search_place: 'Looking up place'
 };
 
 // Helper to send SSE event
@@ -889,6 +992,54 @@ app.post('/api/chat', async (req, res) => {
 // Serve the main page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Config endpoint (serve Maps API key to frontend)
+app.get('/api/config', (req, res) => {
+  res.json({ mapsApiKey: process.env.GOOGLE_MAPS_API_KEY || '' });
+});
+
+// Geocode spots endpoint (fetch coordinates at render time via Places API)
+app.get('/api/days/:dayNumber/coordinates', async (req, res) => {
+  try {
+    const day = await prisma.day.findUnique({
+      where: { dayNumber: parseInt(req.params.dayNumber) },
+      include: { spots: true }
+    });
+
+    if (!day || day.spots.length === 0) {
+      return res.json([]);
+    }
+
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+      return res.json([]);
+    }
+
+    const results = await Promise.all(day.spots.map(async (spot) => {
+      try {
+        const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(spot.name + ' Japan')}&key=${apiKey}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.results?.[0]) {
+          return {
+            id: spot.id,
+            name: spot.name,
+            lat: data.results[0].geometry.location.lat,
+            lng: data.results[0].geometry.location.lng
+          };
+        }
+      } catch (err) {
+        console.error(`Failed to geocode spot ${spot.name}:`, err);
+      }
+      return null;
+    }));
+
+    res.json(results.filter(Boolean));
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Auto-seed Trip data if none exists

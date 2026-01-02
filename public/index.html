@@ -75,48 +75,6 @@
         .header-tag.tokyo { background: rgba(236, 72, 153, 0.2); color: #f472b6; }
         .header-tag.niseko { background: rgba(6, 182, 212, 0.2); color: #22d3ee; }
 
-        /* Navigation */
-        .nav {
-            position: sticky;
-            top: 0;
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border);
-            z-index: 100;
-            padding: 0.75rem 1rem;
-        }
-
-        .nav-inner {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            gap: 0.5rem;
-            overflow-x: auto;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-
-        .nav-inner::-webkit-scrollbar { display: none; }
-
-        .nav-btn {
-            padding: 0.5rem 0.875rem;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            color: var(--text-muted);
-            font-size: 0.7rem;
-            font-weight: 500;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
-
-        .nav-btn:hover, .nav-btn.active {
-            background: var(--accent-soft);
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
         /* Main content */
         .container {
             max-width: 900px;
@@ -309,6 +267,84 @@
         .option-card.shopping { border-left: 3px solid var(--shopping); }
         .option-card.food { border-left: 3px solid var(--food); }
         .option-card .link-btn { margin-top: 0; font-size: 0.65rem; padding: 0.25rem 0.5rem; }
+
+        /* Collapsible spots section */
+        .spots-section {
+            margin-top: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            background: var(--bg);
+        }
+        .spots-section summary {
+            cursor: pointer;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            list-style: none;
+        }
+        .spots-section summary::-webkit-details-marker { display: none; }
+        .spots-section summary::before {
+            content: '▶';
+            font-size: 0.6rem;
+            transition: transform 0.2s;
+        }
+        .spots-section[open] summary::before { transform: rotate(90deg); }
+        .spots-section[open] summary { border-bottom: 1px solid var(--border); }
+        .spot-count { color: var(--text-muted); font-weight: normal; }
+        .spots-inner { padding: 0.75rem; }
+        .day-map {
+            height: 200px;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            background: var(--card);
+        }
+        .spots-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .spot-card {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 0.75rem;
+            background: var(--card);
+            border-radius: 0.5rem;
+            border-left: 3px solid var(--accent);
+        }
+        .spot-card.cultural { border-left-color: var(--cultural); }
+        .spot-card.shopping { border-left-color: var(--shopping); }
+        .spot-card.food { border-left-color: var(--food); }
+        .spot-card.chill { border-left-color: #22d3ee; }
+        .spot-card.party { border-left-color: #f472b6; }
+        .spot-name {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .spot-name:hover { text-decoration: underline; }
+        .spot-category {
+            font-size: 0.6rem;
+            padding: 0.125rem 0.5rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 1rem;
+            color: var(--text-muted);
+            text-transform: capitalize;
+        }
+        .spot-desc {
+            width: 100%;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
 
         /* Map section */
         .map-section { margin: 3rem 0; }
@@ -973,34 +1009,14 @@
 
     <!-- Simple Header -->
     <header class="header">
-        <h1>Tokyo + Niseko 2025</h1>
-        <p class="header-dates">January 19 - February 1</p>
+        <h1>Tokyo + Niseko 2026</h1>
+        <p class="header-dates">January 18 - February 1</p>
         <div class="header-tags">
             <span class="header-tag tokyo">6 Days Tokyo</span>
             <span class="header-tag niseko">4 Days Skiing</span>
         </div>
     </header>
 
-    <!-- Navigation -->
-    <nav class="nav">
-        <div class="nav-inner">
-            <button class="nav-btn" onclick="scrollToSection('overview')">Overview</button>
-            <button class="nav-btn" onclick="scrollToSection('day-1')">Arrive</button>
-            <button class="nav-btn" onclick="scrollToSection('day-2')">Shimokita</button>
-            <button class="nav-btn" onclick="scrollToSection('day-3')">Ginza</button>
-            <button class="nav-btn" onclick="scrollToSection('day-4')">Koenji</button>
-            <button class="nav-btn" onclick="scrollToSection('day-5')">→ Niseko</button>
-            <button class="nav-btn" onclick="scrollToSection('day-6')">Ski 1</button>
-            <button class="nav-btn" onclick="scrollToSection('day-7')">Ski 2</button>
-            <button class="nav-btn" onclick="scrollToSection('day-8')">Ski 3</button>
-            <button class="nav-btn" onclick="scrollToSection('day-9')">Ski 4</button>
-            <button class="nav-btn" onclick="scrollToSection('day-10')">→ Tokyo</button>
-            <button class="nav-btn" onclick="scrollToSection('day-11')">Nakameguro</button>
-            <button class="nav-btn" onclick="scrollToSection('day-12')">Ueno</button>
-            <button class="nav-btn" onclick="scrollToSection('day-13')">Home</button>
-            <button class="nav-btn" onclick="scrollToSection('checklist')">Checklist</button>
-        </div>
-    </nav>
 
     <div class="container">
         <!-- Overview -->
@@ -1011,12 +1027,6 @@
                 <div class="overview-item"><span>To Niseko</span><span>HND → CTS Jan 24</span></div>
                 <div class="overview-item"><span>Back</span><span>CTS → HND Jan 29</span></div>
                 <div class="overview-item"><span>Home</span><span>HND → EWR Feb 1</span></div>
-            </div>
-            <div class="overview-card">
-                <h3>Hotels</h3>
-                <div class="overview-item"><span>Tokyo 1</span><span>ANA Intercontinental</span></div>
-                <div class="overview-item"><span>Niseko</span><span>Aya Niseko</span></div>
-                <div class="overview-item"><span>Tokyo 2</span><span>Splurge TBD</span></div>
             </div>
             <div class="overview-card">
                 <h3>Highlights</h3>
@@ -1196,18 +1206,6 @@
         function toggleDay(header) {
             const card = header.parentElement;
             card.classList.toggle('open');
-        }
-
-        function scrollToSection(id) {
-            const element = document.getElementById(id);
-            if (element) {
-                const navHeight = document.querySelector('.nav').offsetHeight;
-                const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
-                window.scrollTo({
-                    top: elementPosition - navHeight - 16,
-                    behavior: 'smooth'
-                });
-            }
         }
 
         function toggleChecked(checkbox) {
@@ -1559,18 +1557,23 @@
             ` : `<button class="add-btn" onclick="addScheduleItem(${day.dayNumber})">+ Add Schedule Item</button>`;
 
             const spotsHtml = day.spots.length > 0 ? `
-                <p class="section-title">Spots</p>
-                <div class="options-grid">
-                    ${day.spots.map(spot => `
-                        <div class="option-card ${spot.category}" data-id="${spot.id}">
-                            <h4>${escapeHtml(spot.name)}</h4>
-                            <p>${escapeHtml(spot.description)}</p>
-                            <a href="${spot.mapUrl}" target="_blank" class="link-btn">Map</a>
-                            <button class="edit-btn" onclick="editSpot('${spot.id}', ${day.dayNumber})">Edit</button>
+                <details class="spots-section" data-day="${day.dayNumber}">
+                    <summary>Also nearby <span class="spot-count">(${day.spots.length})</span></summary>
+                    <div class="spots-inner">
+                        <div class="day-map" id="map-day-${day.dayNumber}"></div>
+                        <div class="spots-list">
+                            ${day.spots.map(spot => `
+                                <div class="spot-card ${spot.category}" data-id="${spot.id}">
+                                    <a href="${spot.mapUrl}" target="_blank" class="spot-name">${escapeHtml(spot.name)}</a>
+                                    <span class="spot-category">${spot.category}</span>
+                                    <p class="spot-desc">${escapeHtml(spot.description)}</p>
+                                    <button class="edit-btn" onclick="editSpot('${spot.id}', ${day.dayNumber})">Edit</button>
+                                </div>
+                            `).join('')}
                         </div>
-                    `).join('')}
-                </div>
-                <button class="add-btn" onclick="addSpot(${day.dayNumber})">+ Add Spot</button>
+                        <button class="add-btn" onclick="addSpot(${day.dayNumber})">+ Add Spot</button>
+                    </div>
+                </details>
             ` : `<button class="add-btn" onclick="addSpot(${day.dayNumber})">+ Add Spot</button>`;
 
             const linksHtml = day.links.map(link =>
@@ -2133,6 +2136,97 @@
 
             return formatted;
         }
+
+        // === Google Maps Integration ===
+        let mapsApiKey = null;
+        let mapsLoaded = false;
+        const initializedMaps = new Set();
+
+        async function loadMapsApi() {
+            if (mapsLoaded || !mapsApiKey) return;
+
+            return new Promise((resolve) => {
+                const script = document.createElement('script');
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${mapsApiKey}`;
+                script.onload = () => {
+                    mapsLoaded = true;
+                    resolve();
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        async function initDayMap(dayNumber) {
+            const mapContainer = document.getElementById(`map-day-${dayNumber}`);
+            if (!mapContainer || initializedMaps.has(dayNumber)) return;
+
+            // Fetch coordinates from backend
+            try {
+                const coords = await fetch(`/api/days/${dayNumber}/coordinates`).then(r => r.json());
+                if (coords.length === 0) {
+                    mapContainer.style.display = 'none';
+                    return;
+                }
+
+                await loadMapsApi();
+                if (!window.google) {
+                    mapContainer.style.display = 'none';
+                    return;
+                }
+
+                // Dark theme styles
+                const darkStyles = [
+                    { elementType: 'geometry', stylers: [{ color: '#1a1a1a' }] },
+                    { elementType: 'labels.text.stroke', stylers: [{ color: '#1a1a1a' }] },
+                    { elementType: 'labels.text.fill', stylers: [{ color: '#888' }] },
+                    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#333' }] },
+                    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0a0a0a' }] },
+                    { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] }
+                ];
+
+                const map = new google.maps.Map(mapContainer, {
+                    zoom: 14,
+                    center: { lat: coords[0].lat, lng: coords[0].lng },
+                    styles: darkStyles,
+                    disableDefaultUI: true,
+                    zoomControl: true
+                });
+
+                // Fit bounds to show all markers
+                const bounds = new google.maps.LatLngBounds();
+                coords.forEach(spot => {
+                    const marker = new google.maps.Marker({
+                        position: { lat: spot.lat, lng: spot.lng },
+                        map,
+                        title: spot.name
+                    });
+                    bounds.extend(marker.getPosition());
+                });
+
+                if (coords.length > 1) {
+                    map.fitBounds(bounds, { padding: 40 });
+                }
+
+                initializedMaps.add(dayNumber);
+            } catch (err) {
+                console.error('Failed to init map:', err);
+                mapContainer.style.display = 'none';
+            }
+        }
+
+        // Initialize maps when spots sections are opened
+        document.addEventListener('toggle', (e) => {
+            if (e.target.classList.contains('spots-section') && e.target.open) {
+                const dayNumber = parseInt(e.target.dataset.day);
+                initDayMap(dayNumber);
+            }
+        }, true);
+
+        // Load Maps API key on startup
+        fetch('/api/config')
+            .then(r => r.json())
+            .then(config => { mapsApiKey = config.mapsApiKey; })
+            .catch(() => {});
 
     </script>
 </body>
