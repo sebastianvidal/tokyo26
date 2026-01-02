@@ -2511,23 +2511,20 @@
                     return;
                 }
 
-                const darkStyles = [
-                    { elementType: 'geometry', stylers: [{ color: '#1a1a1a' }] },
-                    { elementType: 'labels.text.stroke', stylers: [{ color: '#1a1a1a' }] },
-                    { elementType: 'labels.text.fill', stylers: [{ color: '#888' }] },
-                    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#333' }] },
-                    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0a0a0a' }] },
-                    { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] }
-                ];
-
                 const map = new google.maps.Map(mapContainer, {
                     zoom: 14,
                     center: { lat: coords[0].lat, lng: coords[0].lng },
-                    styles: darkStyles,
                     disableDefaultUI: true,
                     zoomControl: true,
                     fullscreenControl: true
                 });
+
+                // Get full spot data for enhanced info windows
+                const day = itineraryData.find(d => d.dayNumber === dayNumber);
+                const spotsById = {};
+                if (day?.spots) {
+                    day.spots.forEach(s => { spotsById[s.id] = s; });
+                }
 
                 const bounds = new google.maps.LatLngBounds();
 
@@ -2546,8 +2543,27 @@
 
                     bounds.extend(marker.getPosition());
 
+                    // Get full spot data for rich info window
+                    const fullSpot = spotsById[spot.id] || {};
+                    const category = fullSpot.category || '';
+                    const description = fullSpot.description || '';
+                    const mapUrl = fullSpot.mapUrl || `https://www.google.com/maps/search/?api=1&query=${spot.lat},${spot.lng}`;
+                    const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${spot.lat},${spot.lng}`;
+
+                    const infoContent = `
+                        <div style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; min-width: 180px; max-width: 250px;">
+                            <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">${escapeHtml(spot.name)}</div>
+                            ${category ? `<div style="font-size: 11px; color: #666; text-transform: capitalize; margin-bottom: 6px;">${category}</div>` : ''}
+                            ${description ? `<div style="font-size: 12px; color: #333; margin-bottom: 8px; line-height: 1.4;">${escapeHtml(description)}</div>` : ''}
+                            <div style="display: flex; gap: 8px;">
+                                <a href="${mapUrl}" target="_blank" style="font-size: 12px; color: #1a73e8; text-decoration: none;">View</a>
+                                <a href="${directionsUrl}" target="_blank" style="font-size: 12px; color: #1a73e8; text-decoration: none;">Directions</a>
+                            </div>
+                        </div>
+                    `;
+
                     const infoWindow = new google.maps.InfoWindow({
-                        content: `<div style="color:#000;font-weight:500;">${spot.name}</div>`
+                        content: infoContent
                     });
 
                     marker.addListener('click', () => {
