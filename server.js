@@ -367,13 +367,13 @@ app.delete('/api/links/:id', async (req, res) => {
 const CLAUDE_TOOLS = [
   {
     name: 'get_itinerary',
-    description: 'Get the full itinerary or a specific day. Returns days with their schedule items, spots, and links.',
+    description: 'Get trip itinerary. Without dayNumber, returns day summaries (lightweight). With dayNumber, returns full day details including schedule items, spots, and links.',
     input_schema: {
       type: 'object',
       properties: {
         dayNumber: {
           type: 'integer',
-          description: 'Optional day number (0-13) to get a specific day. If omitted, returns all days.'
+          description: 'Day number (0-13) to get full details. Omit for summary of all days.'
         }
       },
       required: []
@@ -623,6 +623,7 @@ async function executeToolCall(toolName, toolInput) {
   switch (toolName) {
     case 'get_itinerary': {
       if (toolInput.dayNumber !== undefined) {
+        // Full details for specific day
         const day = await prisma.day.findUnique({
           where: { dayNumber: toolInput.dayNumber },
           include: {
@@ -633,15 +634,24 @@ async function executeToolCall(toolName, toolInput) {
         });
         return day || { error: 'Day not found' };
       } else {
+        // Return lightweight summaries (no full schedule/spots data)
         const days = await prisma.day.findMany({
           orderBy: { dayNumber: 'asc' },
           include: {
-            scheduleItems: { orderBy: { sortOrder: 'asc' } },
-            spots: { orderBy: { sortOrder: 'asc' } },
-            links: { orderBy: { sortOrder: 'asc' } }
+            _count: {
+              select: { scheduleItems: true, spots: true, links: true }
+            }
           }
         });
-        return days;
+        return days.map(d => ({
+          dayNumber: d.dayNumber,
+          date: d.date,
+          title: d.title,
+          type: d.type,
+          scheduleItemCount: d._count.scheduleItems,
+          spotCount: d._count.spots,
+          linkCount: d._count.links
+        }));
       }
     }
 
@@ -883,12 +893,23 @@ app.post('/api/chat', async (req, res) => {
     const toolsUsed = [];
 
     while (continueLoop) {
-      // Use streaming API
+      // Use streaming API with prompt caching for efficiency
       const stream = anthropic.messages.stream({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4096,
-        system: SYSTEM_PROMPT,
-        tools: CLAUDE_TOOLS,
+        system: [
+          {
+            type: 'text',
+            text: SYSTEM_PROMPT,
+            cache_control: { type: 'ephemeral' }
+          }
+        ],
+        // Add cache_control to last tool to cache entire tool list
+        tools: CLAUDE_TOOLS.map((tool, i, arr) =>
+          i === arr.length - 1
+            ? { ...tool, cache_control: { type: 'ephemeral' } }
+            : tool
+        ),
         messages
       });
 
