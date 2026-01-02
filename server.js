@@ -608,7 +608,7 @@ When user says "I want to go to X" → propose as schedule item, not spot
 LINKS IN SCHEDULE DESCRIPTIONS:
 ALWAYS include HTML links in schedule item descriptions. Format:
 - For places: <a href="[maps_url]" target="_blank">[Place Name]</a>
-- Example: Lunch at <a href="https://www.google.com/maps/place/?q=place_id:xxx" target="_blank">Ichiran Shibuya</a>
+- Example: Lunch at <a href="https://www.google.com/maps/search/?api=1&query=Ichiran+Shibuya" target="_blank">Ichiran Shibuya</a>
 
 ADDING LOCATIONS:
 - Use search_place tool to look up any place by name (e.g., "Ichiran Shibuya Tokyo")
@@ -811,10 +811,11 @@ async function executeToolCall(toolName, toolInput) {
 
         if (data.results?.[0]) {
           const place = data.results[0];
+          const query = `${place.name}, ${place.formatted_address}`;
           return {
             name: place.name,
             address: place.formatted_address,
-            mapUrl: `https://www.google.com/maps/place/?q=place_id:${place.place_id}`
+            mapUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
           };
         }
         return { error: 'Place not found' };
@@ -1249,8 +1250,8 @@ async function ensureTripData() {
       console.log('No trip found, seeding default data...');
       const trip = await prisma.trip.create({
         data: {
-          id: 'tokyo-niseko-2025',
-          title: 'Tokyo + Niseko 2025',
+          id: 'tokyo-niseko-2026',
+          title: 'Tokyo + Niseko 2026',
           subtitle: 'January 19 - February 1',
           tags: ['6 Days Tokyo', '4 Days Skiing'],
           highlights: [

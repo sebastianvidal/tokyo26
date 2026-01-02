@@ -1,7 +1,7 @@
-# Tokyo + Niseko Honeymoon 2025
+# Tokyo + Niseko Honeymoon 2026
 
 ## Overview
-Honeymoon itinerary web app for January 19 - February 1, 2025. Trip includes 6 days in Tokyo and 4 days skiing in Niseko.
+Honeymoon itinerary web app for January 18 - February 1, 2026. Trip includes 6 days in Tokyo and 4 days skiing in Niseko.
 
 ## Tech Stack
 - **Backend:** Express.js + Prisma ORM
@@ -39,11 +39,6 @@ Honeymoon itinerary web app for January 19 - February 1, 2025. Trip includes 6 d
 - **Day 10:** Return to Tokyo
 - **Days 11-12:** Tokyo (Nakameguro, Asakusa)
 - **Day 13:** Fly home HND→EWR (6:25pm departure)
-
-## Hotels
-1. ANA Intercontinental Tokyo (first Tokyo stint)
-2. Aya Niseko (skiing)
-3. TBD splurge hotel (second Tokyo stint) - Park Hyatt closed for renovation until Oct 2025
 
 ## Deployment Notes
 - Railway auto-deploys from `tokyo26` branch
