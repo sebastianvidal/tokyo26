@@ -298,11 +298,30 @@
         .spots-section[open] summary { border-bottom: 1px solid var(--border); }
         .spot-count { color: var(--text-muted); font-weight: normal; }
         .spots-inner { padding: 0.75rem; }
-        .day-map {
-            height: 200px;
-            border-radius: 0.5rem;
+        /* Spots action buttons */
+        .spots-actions {
+            display: flex;
+            gap: 0.5rem;
             margin-bottom: 0.75rem;
+        }
+        .spots-action-btn {
+            flex: 1;
+            padding: 0.5rem 0.75rem;
             background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.375rem;
+        }
+        .spots-action-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
         }
         .spots-list {
             display: flex;
@@ -999,6 +1018,136 @@
             border-radius: 0.75rem;
             margin-top: 0.5rem;
         }
+
+        /* Full Day Map Modal */
+        .map-modal {
+            background: var(--bg);
+            border-radius: 1rem;
+            width: 95vw;
+            max-width: 1100px;
+            height: 80vh;
+            max-height: 700px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .map-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .map-modal-header h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+        .map-modal-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        .full-day-map {
+            flex: 1;
+            min-height: 300px;
+        }
+        .map-spots-sidebar {
+            width: 250px;
+            background: var(--card);
+            border-left: 1px solid var(--border);
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        .map-spots-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .map-spot-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            background: var(--bg);
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+        .map-spot-item:hover { outline: 1px solid var(--accent); }
+        .map-spot-marker {
+            width: 1.75rem;
+            height: 1.75rem;
+            background: var(--accent);
+            color: var(--bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .map-spot-name { font-size: 0.8rem; font-weight: 500; }
+        .map-spot-category { font-size: 0.65rem; color: var(--text-muted); text-transform: capitalize; }
+        .map-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-muted);
+        }
+        @media (max-width: 768px) {
+            .map-modal-body { flex-direction: column; }
+            .map-spots-sidebar {
+                width: 100%;
+                max-height: 150px;
+                border-left: none;
+                border-top: 1px solid var(--border);
+            }
+            .full-day-map { min-height: 250px; }
+        }
+
+        /* Place Search Modal */
+        .place-search-container {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        .place-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 10;
+        }
+        .place-result {
+            padding: 0.75rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+        }
+        .place-result:last-child { border-bottom: none; }
+        .place-result:hover { background: var(--bg); }
+        .place-result-main { font-weight: 500; font-size: 0.875rem; }
+        .place-result-secondary { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
+        .place-result-loading, .place-result-empty, .place-result-error {
+            padding: 1rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        .place-result-error { color: #ef4444; }
+        .selected-place-preview {
+            background: var(--accent-soft);
+            border: 1px solid var(--accent);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .selected-place-name { font-weight: 600; color: var(--accent); }
+        .selected-place-address { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
     </style>
 </head>
 <body>
@@ -1560,7 +1709,11 @@
                 <details class="spots-section" data-day="${day.dayNumber}">
                     <summary>Also nearby <span class="spot-count">(${day.spots.length})</span></summary>
                     <div class="spots-inner">
-                        <div class="day-map" id="map-day-${day.dayNumber}"></div>
+                        <div class="spots-actions">
+                            <button class="spots-action-btn" onclick="openDayMapModal(${day.dayNumber})">Map View</button>
+                            <button class="spots-action-btn" onclick="openInGoogleMaps(${day.dayNumber}, 'pins')">All Pins</button>
+                            <button class="spots-action-btn" onclick="openInGoogleMaps(${day.dayNumber}, 'route')">Get Route</button>
+                        </div>
                         <div class="spots-list">
                             ${day.spots.map(spot => `
                                 <div class="spot-card ${spot.category}" data-id="${spot.id}">
@@ -1789,33 +1942,162 @@
         }
 
         function addSpot(dayNumber) {
-            showEditModal('Add Spot', [
-                { name: 'name', placeholder: 'Spot name' },
-                { name: 'description', placeholder: 'Description' },
-                { name: 'mapUrl', placeholder: 'Google Maps URL' },
-                { name: 'category', type: 'select', value: 'cultural', options: [
-                    { value: 'cultural', label: 'Cultural' },
-                    { value: 'shopping', label: 'Shopping' },
-                    { value: 'food', label: 'Food' },
-                    { value: 'chill', label: 'Chill' },
-                    { value: 'party', label: 'Party' }
-                ]}
-            ], async () => {
-                const name = document.getElementById('edit-name').value;
-                const description = document.getElementById('edit-description').value;
-                const mapUrl = document.getElementById('edit-mapUrl').value;
-                const category = document.getElementById('edit-category').value;
-                if (!name || !mapUrl) { alert('Please fill in name and map URL'); return; }
+            const modal = document.createElement('div');
+            modal.className = 'edit-modal-overlay';
+            modal.id = 'addSpotModal';
+            modal.innerHTML = `
+                <div class="edit-modal" style="max-width: 550px;">
+                    <h3>Add Spot to Day ${dayNumber}</h3>
+                    <div class="place-search-container">
+                        <input
+                            type="text"
+                            id="placeSearchInput"
+                            placeholder="Search for a place in Japan..."
+                            autocomplete="off"
+                        />
+                        <div class="place-results" id="placeResults"></div>
+                    </div>
+                    <div id="selectedPlaceForm" style="display: none;">
+                        <div class="selected-place-preview" id="selectedPlacePreview"></div>
+                        <input type="hidden" id="spot-placeId" />
+                        <input type="hidden" id="spot-latitude" />
+                        <input type="hidden" id="spot-longitude" />
+                        <input type="hidden" id="spot-mapUrl" />
+                        <input type="text" id="spot-name" placeholder="Spot name" />
+                        <input type="text" id="spot-description" placeholder="Description (optional)" />
+                        <select id="spot-category">
+                            <option value="food">Food</option>
+                            <option value="cultural">Cultural</option>
+                            <option value="shopping">Shopping</option>
+                            <option value="chill">Chill</option>
+                            <option value="party">Party</option>
+                        </select>
+                    </div>
+                    <div class="edit-modal-actions">
+                        <button onclick="closeAddSpotModal()">Cancel</button>
+                        <button class="primary" id="saveSpotBtn" onclick="saveSpotFromSearch(${dayNumber})" disabled>Add Spot</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            const searchInput = document.getElementById('placeSearchInput');
+            searchInput.focus();
+            searchInput.addEventListener('input', (e) => handlePlaceSearch(e.target.value));
+        }
+
+        let searchTimeout = null;
+
+        async function handlePlaceSearch(query) {
+            clearTimeout(searchTimeout);
+            const resultsContainer = document.getElementById('placeResults');
+
+            if (query.length < 2) {
+                resultsContainer.innerHTML = '';
+                return;
+            }
+
+            resultsContainer.innerHTML = '<div class="place-result-loading">Searching...</div>';
+
+            searchTimeout = setTimeout(async () => {
                 try {
-                    await fetch(`/api/days/${dayNumber}/spots`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name, description, mapUrl, category })
-                    });
-                    closeEditModal();
-                    loadItinerary();
-                } catch (err) { alert('Failed to add spot'); }
-            });
+                    const res = await fetch(`/api/places/search?query=${encodeURIComponent(query)}`);
+                    const data = await res.json();
+
+                    if (data.predictions.length === 0) {
+                        resultsContainer.innerHTML = '<div class="place-result-empty">No places found</div>';
+                        return;
+                    }
+
+                    resultsContainer.innerHTML = data.predictions.map(p => `
+                        <div class="place-result" onclick="selectPlace('${p.placeId}')">
+                            <div class="place-result-main">${escapeHtml(p.mainText || p.description)}</div>
+                            ${p.secondaryText ? `<div class="place-result-secondary">${escapeHtml(p.secondaryText)}</div>` : ''}
+                        </div>
+                    `).join('');
+                } catch (err) {
+                    resultsContainer.innerHTML = '<div class="place-result-error">Search failed</div>';
+                }
+            }, 300);
+        }
+
+        async function selectPlace(placeId) {
+            const resultsContainer = document.getElementById('placeResults');
+            resultsContainer.innerHTML = '<div class="place-result-loading">Loading details...</div>';
+
+            try {
+                const res = await fetch(`/api/places/${placeId}`);
+                const place = await res.json();
+
+                if (place.error) throw new Error(place.error);
+
+                // Fill hidden fields
+                document.getElementById('spot-placeId').value = place.placeId;
+                document.getElementById('spot-latitude').value = place.latitude;
+                document.getElementById('spot-longitude').value = place.longitude;
+                document.getElementById('spot-mapUrl').value = place.mapUrl;
+                document.getElementById('spot-name').value = place.name;
+
+                // Guess category from types
+                const category = guessCategory(place.types || []);
+                document.getElementById('spot-category').value = category;
+
+                // Show preview
+                document.getElementById('selectedPlacePreview').innerHTML = `
+                    <div class="selected-place-name">${escapeHtml(place.name)}</div>
+                    <div class="selected-place-address">${escapeHtml(place.address)}</div>
+                `;
+
+                // Show form, hide search
+                resultsContainer.innerHTML = '';
+                document.getElementById('placeSearchInput').style.display = 'none';
+                document.getElementById('selectedPlaceForm').style.display = 'block';
+                document.getElementById('saveSpotBtn').disabled = false;
+
+            } catch (err) {
+                resultsContainer.innerHTML = `<div class="place-result-error">Failed to load: ${err.message}</div>`;
+            }
+        }
+
+        function guessCategory(types) {
+            if (types.includes('restaurant') || types.includes('food') || types.includes('cafe') || types.includes('bar')) return 'food';
+            if (types.includes('museum') || types.includes('temple') || types.includes('shrine') || types.includes('church')) return 'cultural';
+            if (types.includes('store') || types.includes('shopping_mall')) return 'shopping';
+            if (types.includes('park') || types.includes('spa')) return 'chill';
+            if (types.includes('night_club')) return 'party';
+            return 'cultural';
+        }
+
+        async function saveSpotFromSearch(dayNumber) {
+            const name = document.getElementById('spot-name').value.trim();
+            const description = document.getElementById('spot-description').value.trim();
+            const category = document.getElementById('spot-category').value;
+            const mapUrl = document.getElementById('spot-mapUrl').value;
+            const latitude = parseFloat(document.getElementById('spot-latitude').value);
+            const longitude = parseFloat(document.getElementById('spot-longitude').value);
+            const placeId = document.getElementById('spot-placeId').value;
+
+            if (!name || !mapUrl) {
+                alert('Please select a place first');
+                return;
+            }
+
+            try {
+                await fetch(`/api/days/${dayNumber}/spots`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, description, category, mapUrl, latitude, longitude, placeId })
+                });
+                closeAddSpotModal();
+                loadItinerary();
+            } catch (err) {
+                alert('Failed to add spot');
+            }
+        }
+
+        function closeAddSpotModal() {
+            const modal = document.getElementById('addSpotModal');
+            if (modal) modal.remove();
         }
 
         // === Chat Panel Functions ===
@@ -2140,7 +2422,6 @@
         // === Google Maps Integration ===
         let mapsApiKey = null;
         let mapsLoaded = false;
-        const initializedMaps = new Set();
 
         async function loadMapsApi() {
             if (mapsLoaded || !mapsApiKey) return;
@@ -2156,25 +2437,65 @@
             });
         }
 
-        async function initDayMap(dayNumber) {
-            const mapContainer = document.getElementById(`map-day-${dayNumber}`);
-            if (!mapContainer || initializedMaps.has(dayNumber)) return;
+        // Full Day Map Modal
+        async function openDayMapModal(dayNumber) {
+            const day = itineraryData.find(d => d.dayNumber === dayNumber);
+            if (!day) return;
 
-            // Fetch coordinates from backend
+            const modal = document.createElement('div');
+            modal.className = 'edit-modal-overlay';
+            modal.id = 'dayMapModal';
+            modal.onclick = (e) => { if (e.target === modal) closeDayMapModal(); };
+            modal.innerHTML = `
+                <div class="map-modal">
+                    <div class="map-modal-header">
+                        <h3>Day ${dayNumber}: ${escapeHtml(day.title)}</h3>
+                        <button class="panel-close" onclick="closeDayMapModal()">&times;</button>
+                    </div>
+                    <div class="map-modal-body">
+                        <div id="fullDayMap" class="full-day-map"></div>
+                        <div class="map-spots-sidebar">
+                            <div class="map-spots-list">
+                                ${day.spots.map((spot, i) => `
+                                    <div class="map-spot-item" data-index="${i}">
+                                        <span class="map-spot-marker">${i + 1}</span>
+                                        <div class="map-spot-info">
+                                            <div class="map-spot-name">${escapeHtml(spot.name)}</div>
+                                            <div class="map-spot-category">${spot.category}</div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <button class="spots-action-btn" style="margin-top: 0.75rem;" onclick="openInGoogleMaps(${dayNumber}, 'route')">
+                                Get Walking Route
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            document.body.style.overflow = 'hidden';
+
+            await initFullDayMap(dayNumber, day.spots);
+        }
+
+        async function initFullDayMap(dayNumber, spots) {
+            const mapContainer = document.getElementById('fullDayMap');
+
             try {
                 const coords = await fetch(`/api/days/${dayNumber}/coordinates`).then(r => r.json());
+
                 if (coords.length === 0) {
-                    mapContainer.style.display = 'none';
+                    mapContainer.innerHTML = '<div class="map-empty">No locations available</div>';
                     return;
                 }
 
                 await loadMapsApi();
                 if (!window.google) {
-                    mapContainer.style.display = 'none';
+                    mapContainer.innerHTML = '<div class="map-empty">Could not load map</div>';
                     return;
                 }
 
-                // Dark theme styles
                 const darkStyles = [
                     { elementType: 'geometry', stylers: [{ color: '#1a1a1a' }] },
                     { elementType: 'labels.text.stroke', stylers: [{ color: '#1a1a1a' }] },
@@ -2189,38 +2510,115 @@
                     center: { lat: coords[0].lat, lng: coords[0].lng },
                     styles: darkStyles,
                     disableDefaultUI: true,
-                    zoomControl: true
+                    zoomControl: true,
+                    fullscreenControl: true
                 });
 
-                // Fit bounds to show all markers
                 const bounds = new google.maps.LatLngBounds();
-                coords.forEach(spot => {
+
+                coords.forEach((spot, index) => {
                     const marker = new google.maps.Marker({
                         position: { lat: spot.lat, lng: spot.lng },
                         map,
-                        title: spot.name
+                        title: spot.name,
+                        label: {
+                            text: String(index + 1),
+                            color: '#fff',
+                            fontSize: '12px',
+                            fontWeight: 'bold'
+                        }
                     });
+
                     bounds.extend(marker.getPosition());
+
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: `<div style="color:#000;font-weight:500;">${spot.name}</div>`
+                    });
+
+                    marker.addListener('click', () => {
+                        infoWindow.open(map, marker);
+                    });
                 });
 
                 if (coords.length > 1) {
-                    map.fitBounds(bounds, { padding: 40 });
+                    map.fitBounds(bounds, { padding: 50 });
                 }
 
-                initializedMaps.add(dayNumber);
             } catch (err) {
-                console.error('Failed to init map:', err);
-                mapContainer.style.display = 'none';
+                console.error('Failed to init full day map:', err);
+                mapContainer.innerHTML = '<div class="map-empty">Failed to load map</div>';
             }
         }
 
-        // Initialize maps when spots sections are opened
-        document.addEventListener('toggle', (e) => {
-            if (e.target.classList.contains('spots-section') && e.target.open) {
-                const dayNumber = parseInt(e.target.dataset.day);
-                initDayMap(dayNumber);
+        function closeDayMapModal() {
+            const modal = document.getElementById('dayMapModal');
+            if (modal) modal.remove();
+            document.body.style.overflow = '';
+        }
+
+        // Open in Google Maps (external deep link)
+        async function openInGoogleMaps(dayNumber, mode = 'pins') {
+            const day = itineraryData.find(d => d.dayNumber === dayNumber);
+            if (!day || day.spots.length === 0) {
+                alert('No spots to show on map');
+                return;
             }
-        }, true);
+
+            try {
+                if (mode === 'pins') {
+                    // Use KML file to show all pins in Google Maps
+                    // This only works when app is deployed (Google needs to fetch the KML)
+                    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+                    if (isLocalhost) {
+                        // Fallback for local dev - center on area
+                        const coords = await fetch(`/api/days/${dayNumber}/coordinates`).then(r => r.json());
+                        if (coords.length > 0) {
+                            const avgLat = coords.reduce((sum, c) => sum + c.lat, 0) / coords.length;
+                            const avgLng = coords.reduce((sum, c) => sum + c.lng, 0) / coords.length;
+                            window.open(`https://www.google.com/maps/@${avgLat},${avgLng},16z`, '_blank');
+                        }
+                    } else {
+                        // Production - use KML for multi-pin view
+                        const kmlUrl = `${window.location.origin}/api/days/${dayNumber}/spots.kml`;
+                        window.open(`https://www.google.com/maps?q=${encodeURIComponent(kmlUrl)}`, '_blank');
+                    }
+                    return;
+                }
+
+                // Route mode - walking directions through all spots
+                const coords = await fetch(`/api/days/${dayNumber}/coordinates`).then(r => r.json());
+
+                if (coords.length === 0) {
+                    const firstSpot = day.spots[0];
+                    window.open(`https://www.google.com/maps/search/${encodeURIComponent(firstSpot.name + ' Japan')}`, '_blank');
+                    return;
+                }
+
+                if (coords.length === 1) {
+                    window.open(`https://www.google.com/maps/search/?api=1&query=${coords[0].lat},${coords[0].lng}`, '_blank');
+                    return;
+                }
+
+                const origin = `${coords[0].lat},${coords[0].lng}`;
+                const destination = `${coords[coords.length - 1].lat},${coords[coords.length - 1].lng}`;
+
+                let url;
+                if (coords.length === 2) {
+                    url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=walking`;
+                } else {
+                    const waypoints = coords.slice(1, -1).map(c => `${c.lat},${c.lng}`).join('|');
+                    url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&waypoints=${encodeURIComponent(waypoints)}&travelmode=walking`;
+                }
+                window.open(url, '_blank');
+
+            } catch (err) {
+                console.error('Failed to open in Google Maps:', err);
+                if (day.spots[0]?.mapUrl) {
+                    window.open(day.spots[0].mapUrl, '_blank');
+                }
+            }
+        }
 
         // Load Maps API key on startup
         fetch('/api/config')

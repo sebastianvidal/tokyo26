@@ -257,7 +257,7 @@ app.delete('/api/schedule/:id', async (req, res) => {
 // Add spot to a day
 app.post('/api/days/:dayNumber/spots', async (req, res) => {
   try {
-    const { name, description, category, mapUrl } = req.body;
+    const { name, description, category, mapUrl, latitude, longitude, placeId } = req.body;
     const day = await prisma.day.findUnique({
       where: { dayNumber: parseInt(req.params.dayNumber) }
     });
@@ -270,7 +270,17 @@ app.post('/api/days/:dayNumber/spots', async (req, res) => {
     const sortOrder = (maxSpot?.sortOrder ?? -1) + 1;
 
     const spot = await prisma.spot.create({
-      data: { dayId: day.id, name, description, category, mapUrl, sortOrder }
+      data: {
+        dayId: day.id,
+        name,
+        description,
+        category,
+        mapUrl,
+        sortOrder,
+        latitude: latitude || null,
+        longitude: longitude || null,
+        placeId: placeId || null
+      }
     });
     res.json(spot);
   } catch (error) {
@@ -999,7 +1009,157 @@ app.get('/api/config', (req, res) => {
   res.json({ mapsApiKey: process.env.GOOGLE_MAPS_API_KEY || '' });
 });
 
-// Geocode spots endpoint (fetch coordinates at render time via Places API)
+// Place search endpoint for frontend autocomplete
+app.get('/api/places/search', async (req, res) => {
+  try {
+    const { query } = req.query;
+    if (!query || query.length < 2) {
+      return res.json({ predictions: [] });
+    }
+
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'Google Maps API key not configured' });
+    }
+
+    const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(query)}&types=establishment&components=country:jp&key=${apiKey}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    res.json({
+      predictions: (data.predictions || []).map(p => ({
+        placeId: p.place_id,
+        description: p.description,
+        mainText: p.structured_formatting?.main_text,
+        secondaryText: p.structured_formatting?.secondary_text
+      }))
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get full place details including coordinates
+app.get('/api/places/:placeId', async (req, res) => {
+  try {
+    const { placeId } = req.params;
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'Google Maps API key not configured' });
+    }
+
+    const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_address,geometry,types,place_id&key=${apiKey}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.result) {
+      const place = data.result;
+      res.json({
+        name: place.name,
+        address: place.formatted_address,
+        latitude: place.geometry.location.lat,
+        longitude: place.geometry.location.lng,
+        placeId: place.place_id,
+        mapUrl: `https://www.google.com/maps/place/?q=place_id:${place.place_id}`,
+        types: place.types
+      });
+    } else {
+      res.status(404).json({ error: 'Place not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Generate KML file for a day's spots (for Google Maps multi-pin view)
+app.get('/api/days/:dayNumber/spots.kml', async (req, res) => {
+  try {
+    const day = await prisma.day.findUnique({
+      where: { dayNumber: parseInt(req.params.dayNumber) },
+      include: { spots: { orderBy: { sortOrder: 'asc' } } }
+    });
+
+    if (!day || day.spots.length === 0) {
+      return res.status(404).send('No spots found');
+    }
+
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+
+    // Get coordinates for all spots (use cached or geocode)
+    const spotsWithCoords = await Promise.all(day.spots.map(async (spot) => {
+      if (spot.latitude && spot.longitude) {
+        return { ...spot, lat: spot.latitude, lng: spot.longitude };
+      }
+
+      if (!apiKey) return null;
+
+      try {
+        const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(spot.name + ' Japan')}&key=${apiKey}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.results?.[0]) {
+          const lat = data.results[0].geometry.location.lat;
+          const lng = data.results[0].geometry.location.lng;
+
+          // Cache for future
+          await prisma.spot.update({
+            where: { id: spot.id },
+            data: { latitude: lat, longitude: lng }
+          });
+
+          return { ...spot, lat, lng };
+        }
+      } catch (err) {
+        console.error(`Failed to geocode spot ${spot.name}:`, err);
+      }
+      return null;
+    }));
+
+    const validSpots = spotsWithCoords.filter(Boolean);
+
+    if (validSpots.length === 0) {
+      return res.status(404).send('Could not geocode spots');
+    }
+
+    // Generate KML
+    const placemarks = validSpots.map(spot => `
+    <Placemark>
+      <name>${escapeXml(spot.name)}</name>
+      <description>${escapeXml(spot.description || '')}</description>
+      <Point>
+        <coordinates>${spot.lng},${spot.lat},0</coordinates>
+      </Point>
+    </Placemark>`).join('');
+
+    const kml = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Day ${day.dayNumber}: ${escapeXml(day.title)}</name>
+    <description>Spots for ${escapeXml(day.title)}</description>
+    ${placemarks}
+  </Document>
+</kml>`;
+
+    res.setHeader('Content-Type', 'application/vnd.google-earth.kml+xml');
+    res.setHeader('Content-Disposition', `inline; filename="day-${day.dayNumber}-spots.kml"`);
+    res.send(kml);
+  } catch (error) {
+    res.status(500).send('Error generating KML');
+  }
+});
+
+function escapeXml(str) {
+  if (!str) return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+// Geocode spots endpoint (use cached coords or fetch via Places API)
 app.get('/api/days/:dayNumber/coordinates', async (req, res) => {
   try {
     const day = await prisma.day.findUnique({
@@ -1012,23 +1172,37 @@ app.get('/api/days/:dayNumber/coordinates', async (req, res) => {
     }
 
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-    if (!apiKey) {
-      return res.json([]);
-    }
 
     const results = await Promise.all(day.spots.map(async (spot) => {
+      // Use cached coordinates if available
+      if (spot.latitude && spot.longitude) {
+        return {
+          id: spot.id,
+          name: spot.name,
+          lat: spot.latitude,
+          lng: spot.longitude
+        };
+      }
+
+      // Fallback to geocoding (and cache the result)
+      if (!apiKey) return null;
+
       try {
         const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(spot.name + ' Japan')}&key=${apiKey}`;
         const response = await fetch(url);
         const data = await response.json();
 
         if (data.results?.[0]) {
-          return {
-            id: spot.id,
-            name: spot.name,
-            lat: data.results[0].geometry.location.lat,
-            lng: data.results[0].geometry.location.lng
-          };
+          const lat = data.results[0].geometry.location.lat;
+          const lng = data.results[0].geometry.location.lng;
+
+          // Cache the coordinates for future requests
+          await prisma.spot.update({
+            where: { id: spot.id },
+            data: { latitude: lat, longitude: lng }
+          });
+
+          return { id: spot.id, name: spot.name, lat, lng };
         }
       } catch (err) {
         console.error(`Failed to geocode spot ${spot.name}:`, err);
