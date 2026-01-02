@@ -1054,13 +1054,17 @@ app.get('/api/places/:placeId', async (req, res) => {
 
     if (data.result) {
       const place = data.result;
+      const lat = place.geometry.location.lat;
+      const lng = place.geometry.location.lng;
+      // Use name + address for the query - works great on mobile
+      const query = `${place.name}, ${place.formatted_address}`;
       res.json({
         name: place.name,
         address: place.formatted_address,
-        latitude: place.geometry.location.lat,
-        longitude: place.geometry.location.lng,
+        latitude: lat,
+        longitude: lng,
         placeId: place.place_id,
-        mapUrl: `https://www.google.com/maps/place/?q=place_id:${place.place_id}`,
+        mapUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`,
         types: place.types
       });
     } else {
