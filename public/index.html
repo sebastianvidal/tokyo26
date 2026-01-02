@@ -2581,39 +2581,32 @@
 
             try {
                 const coords = await fetch(`/api/days/${dayNumber}/coordinates`).then(r => r.json());
-                console.log('Coords for day', dayNumber, ':', coords);
 
                 if (!coords || coords.length === 0) {
-                    // Fallback: search for first spot by name
-                    const firstSpot = day.spots[0];
-                    window.open(`https://www.google.com/maps/search/${encodeURIComponent(firstSpot.name + ' Tokyo Japan')}`, '_blank');
+                    // Fallback: open first spot's mapUrl
+                    if (day.spots[0]?.mapUrl) {
+                        window.location.href = day.spots[0].mapUrl;
+                    }
                     return;
                 }
 
                 if (coords.length === 1) {
-                    window.open(`https://www.google.com/maps/search/?api=1&query=${coords[0].lat},${coords[0].lng}`, '_blank');
+                    // Single spot - use simple search URL
+                    window.location.href = `https://www.google.com/maps/search/?api=1&query=${coords[0].lat},${coords[0].lng}`;
                     return;
                 }
 
-                // Build directions URL with all spots as waypoints
-                const origin = `${coords[0].lat},${coords[0].lng}`;
-                const destination = `${coords[coords.length - 1].lat},${coords[coords.length - 1].lng}`;
+                // Multiple spots - build a route URL using place coordinates
+                // Format: /dir/lat1,lng1/lat2,lng2/lat3,lng3/...
+                const points = coords.map(c => `${c.lat},${c.lng}`).join('/');
+                const url = `https://www.google.com/maps/dir/${points}`;
 
-                let url;
-                if (coords.length === 2) {
-                    url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=walking`;
-                } else {
-                    const waypoints = coords.slice(1, -1).map(c => `${c.lat},${c.lng}`).join('|');
-                    url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&waypoints=${encodeURIComponent(waypoints)}&travelmode=walking`;
-                }
-
-                console.log('Opening Google Maps URL:', url);
-                window.open(url, '_blank');
+                window.location.href = url;
 
             } catch (err) {
                 console.error('Failed to open in Google Maps:', err);
                 if (day.spots[0]?.mapUrl) {
-                    window.open(day.spots[0].mapUrl, '_blank');
+                    window.location.href = day.spots[0].mapUrl;
                 }
             }
         }
