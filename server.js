@@ -139,16 +139,25 @@ app.get('/api/trip', async (req, res) => {
 
 // === ITINERARY - DAYS ===
 
+// Sort schedule items by time chronologically
+function sortByTime(items) {
+  return items.sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+}
+
 // Get all days with nested items
 app.get('/api/days', async (req, res) => {
   try {
     const days = await prisma.day.findMany({
       orderBy: { dayNumber: 'asc' },
       include: {
-        scheduleItems: { orderBy: { sortOrder: 'asc' } },
+        scheduleItems: true,
         spots: { orderBy: { sortOrder: 'asc' } },
         links: { orderBy: { sortOrder: 'asc' } }
       }
+    });
+    // Sort schedule items by time
+    days.forEach(day => {
+      day.scheduleItems = sortByTime(day.scheduleItems);
     });
     res.json(days);
   } catch (error) {
@@ -162,12 +171,14 @@ app.get('/api/days/:dayNumber', async (req, res) => {
     const day = await prisma.day.findUnique({
       where: { dayNumber: parseInt(req.params.dayNumber) },
       include: {
-        scheduleItems: { orderBy: { sortOrder: 'asc' } },
+        scheduleItems: true,
         spots: { orderBy: { sortOrder: 'asc' } },
         links: { orderBy: { sortOrder: 'asc' } }
       }
     });
     if (!day) return res.status(404).json({ error: 'Day not found' });
+    // Sort schedule items by time
+    day.scheduleItems = sortByTime(day.scheduleItems);
     res.json(day);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -495,7 +506,7 @@ const CLAUDE_TOOLS = [
         },
         mapUrl: {
           type: 'string',
-          description: 'Google Maps URL for the spot'
+          description: 'Google Maps search URL (use format from search_place tool) or short link (maps.app.goo.gl)'
         }
       },
       required: ['dayNumber', 'name', 'description', 'category', 'mapUrl']
@@ -526,7 +537,7 @@ const CLAUDE_TOOLS = [
         },
         mapUrl: {
           type: 'string',
-          description: 'New Google Maps URL'
+          description: 'Google Maps search URL or short link (maps.app.goo.gl) only'
         }
       },
       required: ['id']
@@ -611,10 +622,10 @@ ALWAYS include HTML links in schedule item descriptions. Format:
 - Example: Lunch at <a href="https://www.google.com/maps/search/?api=1&query=Ichiran+Shibuya" target="_blank">Ichiran Shibuya</a>
 
 ADDING LOCATIONS:
-- Use search_place tool to look up any place by name (e.g., "Ichiran Shibuya Tokyo")
-- This returns the official name, address, and a Maps URL
-- Use the returned mapUrl when adding spots or in schedule item descriptions
-- If user pastes a maps.app.goo.gl short link, use resolve_maps_url first to get details
+- ALWAYS use search_place tool to look up places - this returns the correct URL format
+- Use the mapUrl returned by search_place (format: https://www.google.com/maps/search/?api=1&query=...)
+- If user pastes a maps.app.goo.gl short link, use resolve_maps_url first
+- NEVER use long Google Maps URLs with coordinates or place IDs - only search URLs or short links
 
 Be concise. Never modify the itinerary without user confirmation first.`;
 
@@ -623,16 +634,39 @@ async function executeToolCall(toolName, toolInput) {
   switch (toolName) {
     case 'get_itinerary': {
       if (toolInput.dayNumber !== undefined) {
-        // Full details for specific day
+        // Slim details for specific day (reduce token usage)
         const day = await prisma.day.findUnique({
           where: { dayNumber: toolInput.dayNumber },
           include: {
-            scheduleItems: { orderBy: { sortOrder: 'asc' } },
+            scheduleItems: true,
             spots: { orderBy: { sortOrder: 'asc' } },
             links: { orderBy: { sortOrder: 'asc' } }
           }
         });
-        return day || { error: 'Day not found' };
+        if (!day) return { error: 'Day not found' };
+        // Sort schedule items by time and return slim version
+        const sortedItems = sortByTime(day.scheduleItems);
+        return {
+          dayNumber: day.dayNumber,
+          date: day.date,
+          title: day.title,
+          dayType: day.dayType,
+          scheduleItems: sortedItems.map(s => ({
+            id: s.id,
+            time: s.time,
+            title: s.description.replace(/<[^>]*>/g, '').slice(0, 60),
+            category: s.category
+          })),
+          spots: day.spots.map(s => ({
+            id: s.id,
+            name: s.name,
+            category: s.category
+          })),
+          links: day.links.map(l => ({
+            id: l.id,
+            label: l.label
+          }))
+        };
       } else {
         // Return lightweight summaries (no full schedule/spots data)
         const days = await prisma.day.findMany({
@@ -829,6 +863,40 @@ async function executeToolCall(toolName, toolInput) {
   }
 }
 
+// Summarize long conversation history to reduce tokens
+function summarizeConversation(messages) {
+  if (messages.length <= 6) return messages;
+
+  // Keep last 3 exchanges, summarize the rest
+  const keepCount = 4;
+  const toSummarize = messages.slice(0, -keepCount);
+  const toKeep = messages.slice(-keepCount);
+
+  // Extract key points from older messages
+  const keyPoints = [];
+  for (const msg of toSummarize) {
+    const text = typeof msg.content === 'string' ? msg.content : '';
+    // Extract mentions of additions/updates/deletions
+    if (msg.role === 'assistant' && text.length > 50) {
+      // Get first sentence or key action
+      const firstSentence = text.split(/[.!?\n]/)[0];
+      if (firstSentence && firstSentence.length < 100) {
+        keyPoints.push(firstSentence);
+      }
+    }
+  }
+
+  const summary = keyPoints.length > 0
+    ? `Previous conversation summary: ${keyPoints.slice(-3).join('. ')}.`
+    : 'Previous conversation about trip planning.';
+
+  return [
+    { role: 'user', content: summary },
+    { role: 'assistant', content: 'Understood. How can I help you now?' },
+    ...toKeep
+  ];
+}
+
 // Tool display names for UI
 const TOOL_DISPLAY_NAMES = {
   get_itinerary: 'Fetching itinerary',
@@ -882,9 +950,12 @@ app.post('/api/chat', async (req, res) => {
       }
     }
 
+    // Summarize if conversation is getting long (reduce tokens)
+    const summarizedHistory = summarizeConversation(cleanedIncoming);
+
     // Build messages array
     const messages = [
-      ...cleanedIncoming,
+      ...summarizedHistory,
       { role: 'user', content: message }
     ];
 
